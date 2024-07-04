@@ -50,8 +50,8 @@ class LoginActivity : ComponentActivity() {
 
         // Configure Google Sign In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.server_client_id))
             .requestEmail()
+            .requestIdToken(getString(R.string.server_client_id))
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
@@ -164,6 +164,9 @@ class LoginActivity : ComponentActivity() {
                 val email = account.email ?: ""
                 val firstName = account.givenName ?: ""
                 val lastName = account.familyName ?: ""
+
+                // Log the retrieved account information
+                Log.d("LoginActivity", "Google Sign-In successful. Email: $email, First Name: $firstName, Last Name: $lastName")
 
                 // Check if the user already exists in the database
                 if (dbManager.isEmailExists(email)) {
