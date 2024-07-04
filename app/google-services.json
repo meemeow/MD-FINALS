@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "17870897958",
+    "project_id": "mobiledevapi",
+    "storage_bucket": "mobiledevapi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:17870897958:android:c9c11e196417f9943037e7",
+        "android_client_info": {
+          "package_name": "com.example.meemeowairlines"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "17870897958-cp603o1rqbk7gutoqa2p77jq38fb2pjo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.meemeowairlines",
+            "certificate_hash": "c6a0daa6a6f36a509f6a20b7240a81037da18232"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFh_85w79SuK6NhtANuZHfAITqGHjIbvA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

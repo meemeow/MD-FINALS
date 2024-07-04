@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context=".LoginActivity"
+    android:background="#F99063">
+
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="387dp"
+        android:layout_height="229dp"
+        android:contentDescription="@string/signup"
+        android:src="@drawable/final_catlogo_removebg1"
+        android:layout_centerHorizontal="true" />
+
+    <LinearLayout
+        android:id="@+id/toggleContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logoImageView"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/loginToggleButton"
+            android:layout_width="130dp"
+            android:layout_height="42dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:text="@string/login" />
+
+        <Button
+            android:id="@+id/signupToggleButton"
+            android:layout_width="130dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/button"
+            android:text="@string/signup" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/loginForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toggleContainer"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        android:visibility="visible"
+        android:background="@drawable/background_text">
+
+        <EditText
+            android:id="@+id/loginEmail"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:hint="@string/email_address" />
+
+        <EditText
+            android:id="@+id/loginPassword"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
+
+        <CheckBox
+            android:id="@+id/rememberMeCheckBox"
+            android:layout_width="140dp"
+            android:layout_height="38dp"
+            android:text="@string/remember_me" />
+
+        <Button
+            android:id="@+id/loginButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="#2C3446"
+            android:text="@string/login"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/googleLoginButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="#2C3446"
+            android:textColor="@color/white"
+            android:text="@string/login_with_google" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/signupForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toggleContainer"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="@drawable/background_text">
+
+        <EditText
+            android:id="@+id/signupFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="@string/first_name" />
+
+        <EditText
+            android:id="@+id/signupLastName"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="@string/last_name" />
+
+
+        <EditText
+            android:id="@+id/signupPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="@string/phone_number" />
+
+        <EditText
+            android:id="@+id/signupEmail"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="@string/email_address" />
+
+        <EditText
+            android:id="@+id/signupPassword"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/signupReenterPassword"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="@string/re_enter_password"
+            android:inputType="textPassword" />
+
+        <CheckBox
+            android:id="@+id/termsCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/termsandconditions" />
+
+        <Button
+            android:id="@+id/signupButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="#2C3446"
+            android:textColor="@color/white"
+            android:text="@string/signup" />
+    </LinearLayout>
+</RelativeLayout>
