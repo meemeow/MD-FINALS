@@ -10,6 +10,17 @@ class DatabaseManager(context: Context) {
     private val dbHelper = DatabaseHelper(context)
     private val db = dbHelper.writableDatabase
 
+
+    fun isEmailExists(email: String): Boolean {
+        val columns = arrayOf(DatabaseHelper.COLUMN_EMAIL_ADDRESS)
+        val selection = "${DatabaseHelper.COLUMN_EMAIL_ADDRESS} = ?"
+        val selectionArgs = arrayOf(email)
+        val cursor = db.query(DatabaseHelper.TABLE_USERS, columns, selection, selectionArgs, null, null, null)
+        val exists = cursor.count > 0
+        cursor.close()
+        return exists
+    }
+
     fun insertUser(
         firstName: String, lastName: String, phoneNumber: String, emailAddress: String, password: String
     ): Long {
@@ -75,13 +86,5 @@ class DatabaseManager(context: Context) {
         return db.delete(DatabaseHelper.TABLE_USERS, selection, selectionArgs)
     }
 
-    fun isEmailExists(email: String): Boolean {
-        val columns = arrayOf(DatabaseHelper.COLUMN_EMAIL_ADDRESS)
-        val selection = "${DatabaseHelper.COLUMN_EMAIL_ADDRESS} = ?"
-        val selectionArgs = arrayOf(email)
-        val cursor = db.query(DatabaseHelper.TABLE_USERS, columns, selection, selectionArgs, null, null, null)
-        val exists = cursor.count > 0
-        cursor.close()
-        return exists
-    }
+
 }

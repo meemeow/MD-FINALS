@@ -138,17 +138,18 @@ class LoginActivity : ComponentActivity() {
                     putBoolean("rememberMe", rememberMe)
                     apply()
                 }
-
+                Log.d("LoginActivity", "Login successful, redirecting to MainActivity")
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
                 finish()
             } else {
-                Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show()
+                Log.d("LoginActivity", "Invalid email or password")
+                Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
             }
         } else {
-            Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+            Log.d("LoginActivity", "Invalid email or password")
+            Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
         }
-        cursor?.close()
     }
 
     private fun signInWithGoogle() {
@@ -159,46 +160,46 @@ class LoginActivity : ComponentActivity() {
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
-            Log.d("LoginActivity", "signInResult:success, account: $account")
-
             if (account != null) {
+                val email = account.email ?: ""
                 val firstName = account.givenName ?: ""
                 val lastName = account.familyName ?: ""
-                val email = account.email ?: ""
 
-                val randomPassword = generateRandomPassword()
-
-                val userId = dbManager.insertUser(firstName, lastName, "", email, randomPassword)
-
-                if (userId > 0) {
-                    val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                    with(sharedPreferences.edit()) {
-                        putBoolean("isLoggedIn", true)
-                        apply()
-                    }
-
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                // Check if the user already exists in the database
+                if (dbManager.isEmailExists(email)) {
+                    // User exists, log in directly
+                    saveLoginState(true)
+                    navigateToMainActivity()
                 } else {
-                    Log.e("LoginActivity", "Failed to insert user into database")
-                    Toast.makeText(this, "Failed to insert user into database", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Log.e("LoginActivity", "Google Sign-In account is null")
-                Toast.makeText(this, "Google Sign-In account is null", Toast.LENGTH_SHORT).show()
-            }
+                    // New user, save user details to the database
 
+                    val userId = dbManager.insertUser(firstName, lastName, "", email, "")
+                    if (userId > 0) {
+                        saveLoginState(true)
+                        navigateToMainActivity()
+                    } else {
+                        Toast.makeText(this, "Account creation failed", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         } catch (e: ApiException) {
-            Log.w("LoginActivity", "signInResult:failed code=" + e.statusCode, e)
-            Toast.makeText(this, "Sign in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+            Log.w("LoginActivity", "signInResult:failed code=" + e.statusCode)
+            Toast.makeText(this, "Google sign-in failed", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun generateRandomPassword(): String {
-        val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        return (1..14)
-            .map { chars.random() }
-            .joinToString("")
+    private fun saveLoginState(rememberMe: Boolean) {
+        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putBoolean("isLoggedIn", true)
+            putBoolean("rememberMe", rememberMe)
+            apply()
+        }
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }
