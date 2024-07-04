@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "MeemeowAirlines.db"
-        private const val DATABASE_VERSION = 4 // Incremented version number
+        private const val DATABASE_VERSION = 7 // Incremented version number
         const val TABLE_USERS = "users"
 
         // Column names
