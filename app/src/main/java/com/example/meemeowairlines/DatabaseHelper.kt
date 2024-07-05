@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "MeemeowAirlines.db"
-        private const val DATABASE_VERSION = 7 // Incremented version number
+        private const val DATABASE_VERSION = 9 // Incremented version number
         const val TABLE_USERS = "users"
 
         // Column names
@@ -18,6 +18,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val COLUMN_PHONE_NUMBER = "phone_number"
         const val COLUMN_EMAIL_ADDRESS = "email_address"
         const val COLUMN_PASSWORD = "password"
+        const val COLUMN_NATIONALITY = "nationality"
+        const val COLUMN_AGE = "age"
+        const val COLUMN_PLACE_OF_BIRTH = "place_of_birth"
+        const val COLUMN_PASSPORT_NUMBER = "passport_number"
+        const val COLUMN_GENDER = "gender"
+        const val COLUMN_EMERGENCY = "emergency"
 
         // Create table SQL query (new schema can be defined here if needed)
         private const val TABLE_CREATE = """
@@ -27,7 +33,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 $COLUMN_LAST_NAME TEXT NOT NULL,
                 $COLUMN_PHONE_NUMBER TEXT NOT NULL,
                 $COLUMN_EMAIL_ADDRESS TEXT NOT NULL,
-                $COLUMN_PASSWORD TEXT NOT NULL
+                $COLUMN_PASSWORD TEXT NOT NULL,
+                $COLUMN_NATIONALITY TEXT,
+                $COLUMN_AGE INTEGER,
+                $COLUMN_PLACE_OF_BIRTH TEXT,
+                $COLUMN_PASSPORT_NUMBER TEXT,
+                $COLUMN_GENDER TEXT,
+                $COLUMN_EMERGENCY TEXT
             );
         """
     }
@@ -37,7 +49,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_USERS") // Drop the existing table
-        onCreate(db) // Create the new table
+        if (oldVersion < 9) {
+            db.execSQL("ALTER TABLE $TABLE_USERS ADD COLUMN $COLUMN_EMERGENCY TEXT")
+        }
     }
 }

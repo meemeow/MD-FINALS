@@ -10,7 +10,6 @@ class DatabaseManager(context: Context) {
     private val dbHelper = DatabaseHelper(context)
     private val db = dbHelper.writableDatabase
 
-
     fun isEmailExists(email: String): Boolean {
         val columns = arrayOf(DatabaseHelper.COLUMN_EMAIL_ADDRESS)
         val selection = "${DatabaseHelper.COLUMN_EMAIL_ADDRESS} = ?"
@@ -22,7 +21,9 @@ class DatabaseManager(context: Context) {
     }
 
     fun insertUser(
-        firstName: String, lastName: String, phoneNumber: String, emailAddress: String, password: String
+        firstName: String, lastName: String, phoneNumber: String, emailAddress: String, password: String,
+        nationality: String? = null, age: Int? = null, placeOfBirth: String? = null, passportNumber: String? = null,
+        gender: String? = null, emergency: String? = null
     ): Long {
         return try {
             val values = ContentValues().apply {
@@ -31,6 +32,12 @@ class DatabaseManager(context: Context) {
                 put(DatabaseHelper.COLUMN_PHONE_NUMBER, phoneNumber)
                 put(DatabaseHelper.COLUMN_EMAIL_ADDRESS, emailAddress)
                 put(DatabaseHelper.COLUMN_PASSWORD, password)
+                put(DatabaseHelper.COLUMN_NATIONALITY, nationality)
+                put(DatabaseHelper.COLUMN_AGE, age)
+                put(DatabaseHelper.COLUMN_PLACE_OF_BIRTH, placeOfBirth)
+                put(DatabaseHelper.COLUMN_PASSPORT_NUMBER, passportNumber)
+                put(DatabaseHelper.COLUMN_GENDER, gender)
+                put(DatabaseHelper.COLUMN_EMERGENCY, emergency)
             }
             val result = db.insert(DatabaseHelper.TABLE_USERS, null, values)
             Log.d("DatabaseManager", "insertUser: result=$result")
@@ -44,7 +51,9 @@ class DatabaseManager(context: Context) {
     fun getUserByEmail(email: String): Cursor? {
         val columns = arrayOf(
             DatabaseHelper.COLUMN_ID, DatabaseHelper.COLUMN_FIRST_NAME, DatabaseHelper.COLUMN_LAST_NAME,
-            DatabaseHelper.COLUMN_PHONE_NUMBER, DatabaseHelper.COLUMN_EMAIL_ADDRESS, DatabaseHelper.COLUMN_PASSWORD
+            DatabaseHelper.COLUMN_PHONE_NUMBER, DatabaseHelper.COLUMN_EMAIL_ADDRESS, DatabaseHelper.COLUMN_PASSWORD,
+            DatabaseHelper.COLUMN_NATIONALITY, DatabaseHelper.COLUMN_AGE, DatabaseHelper.COLUMN_PLACE_OF_BIRTH,
+            DatabaseHelper.COLUMN_PASSPORT_NUMBER, DatabaseHelper.COLUMN_GENDER, DatabaseHelper.COLUMN_EMERGENCY
         )
         val selection = "${DatabaseHelper.COLUMN_EMAIL_ADDRESS} = ?"
         val selectionArgs = arrayOf(email)
@@ -56,7 +65,9 @@ class DatabaseManager(context: Context) {
     fun getUser(id: Long): Cursor? {
         val columns = arrayOf(
             DatabaseHelper.COLUMN_ID, DatabaseHelper.COLUMN_FIRST_NAME, DatabaseHelper.COLUMN_LAST_NAME,
-            DatabaseHelper.COLUMN_PHONE_NUMBER, DatabaseHelper.COLUMN_EMAIL_ADDRESS, DatabaseHelper.COLUMN_PASSWORD
+            DatabaseHelper.COLUMN_PHONE_NUMBER, DatabaseHelper.COLUMN_EMAIL_ADDRESS, DatabaseHelper.COLUMN_PASSWORD,
+            DatabaseHelper.COLUMN_NATIONALITY, DatabaseHelper.COLUMN_AGE, DatabaseHelper.COLUMN_PLACE_OF_BIRTH,
+            DatabaseHelper.COLUMN_PASSPORT_NUMBER, DatabaseHelper.COLUMN_GENDER, DatabaseHelper.COLUMN_EMERGENCY
         )
         val selection = "${DatabaseHelper.COLUMN_ID} = ?"
         val selectionArgs = arrayOf(id.toString())
@@ -65,19 +76,29 @@ class DatabaseManager(context: Context) {
         )
     }
 
-    fun updateUser(
-        id: Long, firstName: String, lastName: String, phoneNumber: String, emailAddress: String, password: String
-    ): Int {
+    fun updateUserProfile(
+        id: Long,
+        phoneNumber: String,
+        nationality: String?,
+        age: String?,
+        placeOfBirth: String?,
+        passportNumber: String?,
+        gender: String?,
+        emergency: String?
+    ): Boolean {
         val values = ContentValues().apply {
-            put(DatabaseHelper.COLUMN_FIRST_NAME, firstName)
-            put(DatabaseHelper.COLUMN_LAST_NAME, lastName)
             put(DatabaseHelper.COLUMN_PHONE_NUMBER, phoneNumber)
-            put(DatabaseHelper.COLUMN_EMAIL_ADDRESS, emailAddress)
-            put(DatabaseHelper.COLUMN_PASSWORD, password)
+            put(DatabaseHelper.COLUMN_NATIONALITY, nationality)
+            put(DatabaseHelper.COLUMN_AGE, age)
+            put(DatabaseHelper.COLUMN_PLACE_OF_BIRTH, placeOfBirth)
+            put(DatabaseHelper.COLUMN_PASSPORT_NUMBER, passportNumber)
+            put(DatabaseHelper.COLUMN_GENDER, gender)
+            put(DatabaseHelper.COLUMN_EMERGENCY, emergency)
         }
         val selection = "${DatabaseHelper.COLUMN_ID} = ?"
         val selectionArgs = arrayOf(id.toString())
-        return db.update(DatabaseHelper.TABLE_USERS, values, selection, selectionArgs)
+        val rowsUpdated = db.update(DatabaseHelper.TABLE_USERS, values, selection, selectionArgs)
+        return rowsUpdated > 0
     }
 
     fun deleteUser(id: Long): Int {
@@ -85,6 +106,4 @@ class DatabaseManager(context: Context) {
         val selectionArgs = arrayOf(id.toString())
         return db.delete(DatabaseHelper.TABLE_USERS, selection, selectionArgs)
     }
-
-
 }

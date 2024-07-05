@@ -104,10 +104,8 @@ class LoginActivity : ComponentActivity() {
         try {
             val userId = dbManager.insertUser(firstName, lastName, phoneNumber, email, password)
             if (userId > 0) {
-                Toast.makeText(this, "Account created successfully", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                Toast.makeText(this, "Account created successfully. Please log in.", Toast.LENGTH_SHORT).show()
+                findViewById<Button>(R.id.loginToggleButton).performClick() // Switch to login form
             } else {
                 Toast.makeText(this, "Account creation failed", Toast.LENGTH_SHORT).show()
             }
@@ -125,29 +123,15 @@ class LoginActivity : ComponentActivity() {
         val cursor = dbManager.getUserByEmail(email)
         if (cursor != null && cursor.moveToFirst()) {
             val storedPassword = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PASSWORD))
-            Log.d("LoginActivity", "Stored password: $storedPassword")
-            Log.d("LoginActivity", "Entered password: $password")
-
-            // Add a debug log to check if the passwords are compared correctly
-            Log.d("LoginActivity", "Passwords match: ${password == storedPassword}")
-
             if (password == storedPassword) {
-                val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                with(sharedPreferences.edit()) {
-                    putBoolean("isLoggedIn", true)
-                    putBoolean("rememberMe", rememberMe)
-                    apply()
-                }
-                Log.d("LoginActivity", "Login successful, redirecting to MainActivity")
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                val userId = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID))
+                saveLoginState(userId, rememberMe)
+                navigateToMainActivity()
             } else {
-                Log.d("LoginActivity", "Invalid email or password")
                 Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
             }
+            cursor.close()
         } else {
-            Log.d("LoginActivity", "Invalid email or password")
             Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
         }
     }
@@ -165,20 +149,16 @@ class LoginActivity : ComponentActivity() {
                 val firstName = account.givenName ?: ""
                 val lastName = account.familyName ?: ""
 
-                // Log the retrieved account information
-                Log.d("LoginActivity", "Google Sign-In successful. Email: $email, First Name: $firstName, Last Name: $lastName")
-
-                // Check if the user already exists in the database
-                if (dbManager.isEmailExists(email)) {
-                    // User exists, log in directly
-                    saveLoginState(true)
+                val cursor = dbManager.getUserByEmail(email)
+                if (cursor != null && cursor.moveToFirst()) {
+                    val userId = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID))
+                    saveLoginState(userId, true)
                     navigateToMainActivity()
+                    cursor.close()
                 } else {
-                    // New user, save user details to the database
-
                     val userId = dbManager.insertUser(firstName, lastName, "", email, "")
                     if (userId > 0) {
-                        saveLoginState(true)
+                        saveLoginState(userId, true)
                         navigateToMainActivity()
                     } else {
                         Toast.makeText(this, "Account creation failed", Toast.LENGTH_SHORT).show()
@@ -186,16 +166,17 @@ class LoginActivity : ComponentActivity() {
                 }
             }
         } catch (e: ApiException) {
-            Log.w("LoginActivity", "signInResult:failed code=" + e.statusCode)
             Toast.makeText(this, "Google sign-in failed", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun saveLoginState(rememberMe: Boolean) {
+
+    private fun saveLoginState(userId: Long, rememberMe: Boolean) {
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putBoolean("isLoggedIn", true)
             putBoolean("rememberMe", rememberMe)
+            putLong("userId", userId)
             apply()
         }
     }
