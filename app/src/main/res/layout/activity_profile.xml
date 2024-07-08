@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffef" >
@@ -34,7 +35,8 @@
                     android:layout_width="173dp"
                     android:layout_height="159dp"
                     android:padding="8dp"
-                    android:src="@drawable/catt_remove" />
+                    android:src="@drawable/catt_remove"
+                    tools:ignore="ContentDescription" />
 
                 <Button
                     android:id="@+id/editButton"
@@ -246,7 +248,8 @@
                             android:textStyle="italic"
                             android:textColor="#000000"
                             android:textFontWeight="550"
-                            android:text="@string/place_of_birth" />
+                            android:text="@string/place_of_birth"
+                            tools:ignore="RtlSymmetry" />
 
                         <EditText
                             android:id="@+id/placeOfBirthEditText"
@@ -275,26 +278,27 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/ageTextView"
+                            android:id="@+id/genderTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingLeft="6dp"
                             android:paddingTop="6dp"
                             android:textStyle="italic"
-                            android:textFontWeight="550"
                             android:textColor="#000000"
-                            android:text="@string/age" />
+                            android:textFontWeight="550"
+                            android:text="@string/gender" />
 
                         <EditText
-                            android:id="@+id/ageEditText"
+                            android:id="@+id/genderEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="@string/enter_gender"
                             android:paddingBottom="6dp"
                             android:paddingTop="3dp"
                             android:paddingStart="6dp"
-                            android:textSize="12sp"
                             android:textColor="#000000"
-                            android:hint="@string/enter_age" />
+                            android:textSize="12sp" />
+
                     </LinearLayout>
 
                     <LinearLayout
@@ -341,26 +345,26 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/genderTextView"
+                            android:id="@+id/dateOfBirthTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingLeft="6dp"
                             android:paddingTop="6dp"
                             android:textStyle="italic"
-                            android:textColor="#000000"
                             android:textFontWeight="550"
-                            android:text="@string/gender" />
+                            android:textColor="#000000"
+                            android:text="@string/dob" />
 
-                        <EditText
-                            android:id="@+id/genderEditText"
+                        <TextView
+                            android:id="@+id/dateOfBirthEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/enter_gender"
                             android:paddingBottom="6dp"
                             android:paddingTop="3dp"
                             android:paddingStart="6dp"
+                            android:textSize="12sp"
                             android:textColor="#000000"
-                            android:textSize="12sp" />
+                            android:hint="@string/enter_dob" />
                     </LinearLayout>
 
                     <LinearLayout

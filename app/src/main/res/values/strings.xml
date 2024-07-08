@@ -18,19 +18,19 @@
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="email">Email</string>
-    <string name="age">Age</string>
-    <string name="enter_age">Enter age</string>
+    <string name="dob">Date of Birth</string>
+    <string name="enter_dob">mm/dd/yyyy</string>
     <string name="gender">Gender</string>
     <string name="enter_gender">Enter gender</string>
     <string name="nationality">Nationality</string>
-    <string name="enter_nationality">Enter nationality</string>
+    <string name="enter_nationality">eg: PHL</string>
     <string name="phone_number">Phone Number</string>
-    <string name="enter_phone_number">Enter phone number</string>
+    <string name="enter_phone_number">**** - *** - ****</string>
     <string name="place_of_birth">Place of Birth</string>
-    <string name="enter_place_of_birth">Enter place of birth</string>
+    <string name="enter_place_of_birth">eg: Metro Manila </string>
     <string name="passport_number">Passport Number</string>
-    <string name="enter_passport_number">Enter passport number</string>
+    <string name="enter_passport_number">eg: TVN12346X01MN2</string>
     <string name="account_info">Account Information:</string>
     <string name="emergency_contact_number">Emergency Contact</string>
-    <string name="enter_emergency_contact_number">Enter Emergency Contact</string>
+    <string name="enter_emergency_contact_number">**** - *** - ****</string>
 </resources>

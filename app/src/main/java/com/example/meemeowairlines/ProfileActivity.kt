@@ -2,6 +2,7 @@
 
 package com.example.meemeowairlines
 
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.database.Cursor
@@ -22,6 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.meemeowairlines.ui.theme.YourAppTheme
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ProfileActivity : ComponentActivity() {
 
@@ -33,7 +36,7 @@ class ProfileActivity : ComponentActivity() {
     private lateinit var logoutButton: Button
     private lateinit var phoneNumberEditText: EditText
     private lateinit var nationalityEditText: EditText
-    private lateinit var ageEditText: EditText
+    private lateinit var dateOfBirthEditText: TextView
     private lateinit var placeOfBirthEditText: EditText
     private lateinit var passportNumberEditText: EditText
     private lateinit var genderEditText: EditText
@@ -43,13 +46,15 @@ class ProfileActivity : ComponentActivity() {
     private lateinit var emailTextView: TextView
     private lateinit var phoneNumberTextView: TextView
     private lateinit var nationalityTextView: TextView
-    private lateinit var ageTextView: TextView
+    private lateinit var dateOfBirthTextView: TextView
     private lateinit var placeOfBirthTextView: TextView
     private lateinit var passportNumberTextView: TextView
     private lateinit var genderTextView: TextView
     private lateinit var emergencyTextView: TextView
+    private val dateFormatter = SimpleDateFormat("MM/dd/yyyy", Locale.US)
 
     private var isEditMode = false
+    private var isDateOfBirthEditable = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,12 +103,17 @@ class ProfileActivity : ComponentActivity() {
         }
     }
 
+    private fun isUserLoggedIn(): Boolean {
+        userId = sharedPreferences.getLong("userId", -1)
+        return userId != -1L
+    }
+
     private fun initializeViews() {
         editProfileButton = findViewById(R.id.editButton)
         logoutButton = findViewById(R.id.logoutButton)
         phoneNumberEditText = findViewById(R.id.phoneNumberEditText)
         nationalityEditText = findViewById(R.id.nationalityEditText)
-        ageEditText = findViewById(R.id.ageEditText)
+        dateOfBirthEditText = findViewById(R.id.dateOfBirthEditText)
         placeOfBirthEditText = findViewById(R.id.placeOfBirthEditText)
         passportNumberEditText = findViewById(R.id.passportNumberEditText)
         genderEditText = findViewById(R.id.genderEditText)
@@ -113,13 +123,19 @@ class ProfileActivity : ComponentActivity() {
         emailTextView = findViewById(R.id.emailTextView)
         phoneNumberTextView = findViewById(R.id.phoneNumberTextView)
         nationalityTextView = findViewById(R.id.nationalityTextView)
-        ageTextView = findViewById(R.id.ageTextView)
+        dateOfBirthTextView = findViewById(R.id.dateOfBirthTextView)
         placeOfBirthTextView = findViewById(R.id.placeOfBirthTextView)
         passportNumberTextView = findViewById(R.id.passportNumberTextView)
         genderTextView = findViewById(R.id.genderTextView)
         emergencyTextView = findViewById(R.id.emergencyTextView)
 
         disableEditing()
+
+        dateOfBirthEditText.setOnClickListener {
+            if (isDateOfBirthEditable) {
+                showDatePickerDialog()
+            }
+        }
     }
 
     private fun loadUserData() {
@@ -131,11 +147,18 @@ class ProfileActivity : ComponentActivity() {
             emailTextView.text = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EMAIL_ADDRESS))
             phoneNumberEditText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PHONE_NUMBER)))
             nationalityEditText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_NATIONALITY)))
-            ageEditText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_AGE)))
             placeOfBirthEditText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PLACE_OF_BIRTH)))
             passportNumberEditText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PASSPORT_NUMBER)))
             genderEditText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_GENDER)))
             emergencyEditText.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EMERGENCY)))
+
+            // Set the date of birth from the database
+            val dateOfBirth = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE_OF_BIRTH))
+            if (!dateOfBirth.isNullOrEmpty()) {
+                dateOfBirthEditText.text = dateOfBirth
+                isDateOfBirthEditable = false
+            }
+
             cursor.close()
         }
     }
@@ -143,7 +166,6 @@ class ProfileActivity : ComponentActivity() {
     private fun enableEditing() {
         phoneNumberEditText.isEnabled = true
         nationalityEditText.isEnabled = true
-        ageEditText.isEnabled = true
         placeOfBirthEditText.isEnabled = true
         passportNumberEditText.isEnabled = true
         genderEditText.isEnabled = true
@@ -156,7 +178,6 @@ class ProfileActivity : ComponentActivity() {
     private fun disableEditing() {
         phoneNumberEditText.isEnabled = false
         nationalityEditText.isEnabled = false
-        ageEditText.isEnabled = false
         placeOfBirthEditText.isEnabled = false
         passportNumberEditText.isEnabled = false
         genderEditText.isEnabled = false
@@ -164,7 +185,6 @@ class ProfileActivity : ComponentActivity() {
 
         phoneNumberEditText.setBackgroundResource(android.R.color.transparent)
         nationalityEditText.setBackgroundResource(android.R.color.transparent)
-        ageEditText.setBackgroundResource(android.R.color.transparent)
         placeOfBirthEditText.setBackgroundResource(android.R.color.transparent)
         passportNumberEditText.setBackgroundResource(android.R.color.transparent)
         genderEditText.setBackgroundResource(android.R.color.transparent)
@@ -177,13 +197,14 @@ class ProfileActivity : ComponentActivity() {
     private fun saveProfileChanges() {
         val phoneNumber = phoneNumberEditText.text.toString()
         val nationality = nationalityEditText.text.toString()
-        val age = ageEditText.text.toString()
         val placeOfBirth = placeOfBirthEditText.text.toString()
         val passportNumber = passportNumberEditText.text.toString()
         val gender = genderEditText.text.toString()
         val emergency = emergencyEditText.text.toString()
 
-        val success = dbManager.updateUserProfile(userId, phoneNumber, nationality, age, placeOfBirth, passportNumber, gender, emergency)
+        val success = dbManager.updateUserProfile(
+            userId, phoneNumber, nationality, placeOfBirth, passportNumber, gender, emergency
+        )
 
         if (success) {
             Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
@@ -194,23 +215,29 @@ class ProfileActivity : ComponentActivity() {
         disableEditing()
     }
 
-    private fun handleLogout() {
-        with(sharedPreferences.edit()) {
-            putBoolean("isLoggedIn", false)
-            putBoolean("rememberMe", false)
-            remove("userId")
-            apply()
-        }
+    
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
 
+        val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+            val selectedDate = Calendar.getInstance()
+            selectedDate.set(selectedYear, selectedMonth, selectedDay)
+            dateOfBirthEditText.text = dateFormatter.format(selectedDate.time)
+            isDateOfBirthEditable = false // Make it non-editable after the first date is selected
+        }, year, month, day)
+
+        datePickerDialog.show()
+    }
+
+    private fun handleLogout() {
+        sharedPreferences.edit().remove("userId").apply()
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }
-
-    private fun isUserLoggedIn(): Boolean {
-        return sharedPreferences.contains("userId")
-    }
-
 }
 
 @Composable
@@ -236,20 +263,20 @@ fun ProfileTopBar() {
         },
         navigationIcon = {
             Box(
-            modifier = Modifier.padding(start = 7.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            IconButton(onClick = {
-                val intent = Intent(context, MainActivity::class.java)
-                context.startActivity(intent)
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.back_7),
-                    contentDescription = "Back",
-                    tint = Color.White,
-                    modifier = Modifier.size(34.dp)
-                )
-            }
+                modifier = Modifier.padding(start = 7.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                IconButton(onClick = {
+                    val intent = Intent(context, MainActivity::class.java)
+                    context.startActivity(intent)
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.back_7),
+                        contentDescription = "Back",
+                        tint = Color.White,
+                        modifier = Modifier.size(34.dp)
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

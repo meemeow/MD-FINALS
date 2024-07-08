@@ -22,7 +22,7 @@ class DatabaseManager(context: Context) {
 
     fun insertUser(
         firstName: String, lastName: String, phoneNumber: String, emailAddress: String, password: String,
-        nationality: String? = null, age: Int? = null, placeOfBirth: String? = null, passportNumber: String? = null,
+        nationality: String? = null, dateOfBirth: String? = null, placeOfBirth: String? = null, passportNumber: String? = null,
         gender: String? = null, emergency: String? = null
     ): Long {
         return try {
@@ -33,7 +33,7 @@ class DatabaseManager(context: Context) {
                 put(DatabaseHelper.COLUMN_EMAIL_ADDRESS, emailAddress)
                 put(DatabaseHelper.COLUMN_PASSWORD, password)
                 put(DatabaseHelper.COLUMN_NATIONALITY, nationality)
-                put(DatabaseHelper.COLUMN_AGE, age)
+                put(DatabaseHelper.COLUMN_DATE_OF_BIRTH, dateOfBirth)
                 put(DatabaseHelper.COLUMN_PLACE_OF_BIRTH, placeOfBirth)
                 put(DatabaseHelper.COLUMN_PASSPORT_NUMBER, passportNumber)
                 put(DatabaseHelper.COLUMN_GENDER, gender)
@@ -52,7 +52,7 @@ class DatabaseManager(context: Context) {
         val columns = arrayOf(
             DatabaseHelper.COLUMN_ID, DatabaseHelper.COLUMN_FIRST_NAME, DatabaseHelper.COLUMN_LAST_NAME,
             DatabaseHelper.COLUMN_PHONE_NUMBER, DatabaseHelper.COLUMN_EMAIL_ADDRESS, DatabaseHelper.COLUMN_PASSWORD,
-            DatabaseHelper.COLUMN_NATIONALITY, DatabaseHelper.COLUMN_AGE, DatabaseHelper.COLUMN_PLACE_OF_BIRTH,
+            DatabaseHelper.COLUMN_NATIONALITY, DatabaseHelper.COLUMN_DATE_OF_BIRTH, DatabaseHelper.COLUMN_PLACE_OF_BIRTH,
             DatabaseHelper.COLUMN_PASSPORT_NUMBER, DatabaseHelper.COLUMN_GENDER, DatabaseHelper.COLUMN_EMERGENCY
         )
         val selection = "${DatabaseHelper.COLUMN_EMAIL_ADDRESS} = ?"
@@ -66,7 +66,7 @@ class DatabaseManager(context: Context) {
         val columns = arrayOf(
             DatabaseHelper.COLUMN_ID, DatabaseHelper.COLUMN_FIRST_NAME, DatabaseHelper.COLUMN_LAST_NAME,
             DatabaseHelper.COLUMN_PHONE_NUMBER, DatabaseHelper.COLUMN_EMAIL_ADDRESS, DatabaseHelper.COLUMN_PASSWORD,
-            DatabaseHelper.COLUMN_NATIONALITY, DatabaseHelper.COLUMN_AGE, DatabaseHelper.COLUMN_PLACE_OF_BIRTH,
+            DatabaseHelper.COLUMN_NATIONALITY, DatabaseHelper.COLUMN_DATE_OF_BIRTH, DatabaseHelper.COLUMN_PLACE_OF_BIRTH,
             DatabaseHelper.COLUMN_PASSPORT_NUMBER, DatabaseHelper.COLUMN_GENDER, DatabaseHelper.COLUMN_EMERGENCY
         )
         val selection = "${DatabaseHelper.COLUMN_ID} = ?"
@@ -80,7 +80,6 @@ class DatabaseManager(context: Context) {
         id: Long,
         phoneNumber: String,
         nationality: String?,
-        age: String?,
         placeOfBirth: String?,
         passportNumber: String?,
         gender: String?,
@@ -89,7 +88,6 @@ class DatabaseManager(context: Context) {
         val values = ContentValues().apply {
             put(DatabaseHelper.COLUMN_PHONE_NUMBER, phoneNumber)
             put(DatabaseHelper.COLUMN_NATIONALITY, nationality)
-            put(DatabaseHelper.COLUMN_AGE, age)
             put(DatabaseHelper.COLUMN_PLACE_OF_BIRTH, placeOfBirth)
             put(DatabaseHelper.COLUMN_PASSPORT_NUMBER, passportNumber)
             put(DatabaseHelper.COLUMN_GENDER, gender)
