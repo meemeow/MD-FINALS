@@ -12,7 +12,7 @@ import android.widget.*
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -98,6 +98,43 @@ class ProfileActivity : ComponentActivity() {
         val composeView = findViewById<ComposeView>(R.id.composeViewTopBar)
         composeView.setContent {
             YourAppTheme {
+                var showWarningDialog by remember { mutableStateOf(false) }
+                var showConfirmationDialog by remember { mutableStateOf(false) }
+                var selectedDate by remember { mutableStateOf(Calendar.getInstance()) }
+
+                if (showWarningDialog) {
+                    ShowWarningDialog(
+                        onDismiss = { showWarningDialog = false },
+                        onProceed = {
+                            showWarningDialog = false
+                            showDatePickerDialog {
+                                showConfirmationDialog = true
+                                selectedDate = it
+                            }
+                        }
+                    )
+                }
+
+                if (showConfirmationDialog) {
+                    ShowConfirmationDialog(
+                        selectedDate = selectedDate,
+                        onDismiss = { showConfirmationDialog = false },
+                        onConfirm = {
+                            val selectedDateString = dateFormatter.format(selectedDate.time)
+                            dateOfBirthEditText.text = selectedDateString
+                            isDateOfBirthEditable = false
+                            showConfirmationDialog = false
+                        }
+                    )
+                }
+
+                LaunchedEffect(Unit) {
+                    dateOfBirthEditText.setOnClickListener {
+                        if (isDateOfBirthEditable) {
+                            showWarningDialog = true
+                        }
+                    }
+                }
                 ProfileTopBar()
             }
         }
@@ -130,12 +167,6 @@ class ProfileActivity : ComponentActivity() {
         emergencyTextView = findViewById(R.id.emergencyTextView)
 
         disableEditing()
-
-        dateOfBirthEditText.setOnClickListener {
-            if (isDateOfBirthEditable) {
-                showDatePickerDialog()
-            }
-        }
     }
 
     private fun loadUserData() {
@@ -201,36 +232,78 @@ class ProfileActivity : ComponentActivity() {
         val passportNumber = passportNumberEditText.text.toString()
         val gender = genderEditText.text.toString()
         val emergency = emergencyEditText.text.toString()
+        val dateOfBirth = dateOfBirthEditText.text.toString()
 
-        val success = dbManager.updateUserProfile(
-            userId, phoneNumber, nationality, placeOfBirth, passportNumber, gender, emergency
-        )
-
-        if (success) {
-            Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "Profile update failed", Toast.LENGTH_SHORT).show()
-        }
+        dbManager.updateUserProfile(userId, phoneNumber, nationality, placeOfBirth, passportNumber, gender, emergency, dateOfBirth)
 
         disableEditing()
     }
 
-    
-    private fun showDatePickerDialog() {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
+    private fun showDatePickerDialog(onDateSelected: (Calendar) -> Unit) {
+        if (isDateOfBirthEditable) {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-            val selectedDate = Calendar.getInstance()
-            selectedDate.set(selectedYear, selectedMonth, selectedDay)
-            dateOfBirthEditText.text = dateFormatter.format(selectedDate.time)
-            isDateOfBirthEditable = false // Make it non-editable after the first date is selected
-        }, year, month, day)
-
-        datePickerDialog.show()
+            val datePickerDialog = DatePickerDialog(
+                this,
+                { _, selectedYear, selectedMonth, selectedDay ->
+                    val selectedDate = Calendar.getInstance()
+                    selectedDate.set(selectedYear, selectedMonth, selectedDay)
+                    onDateSelected(selectedDate)
+                },
+                year, month, day
+            )
+            datePickerDialog.show()
+        }
     }
+
+    @Composable
+    fun ShowWarningDialog(onDismiss: () -> Unit, onProceed: () -> Unit) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = "Warning") },
+            text = { Text("You can only change your date of birth once. Do you want to proceed?") },
+            confirmButton = {
+                Button(onClick = onProceed) {
+                    Text("Proceed")
+                }
+            },
+            dismissButton = {
+                Button(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    @Composable
+    fun ShowConfirmationDialog(selectedDate: Calendar, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+        val selectedDateString = dateFormatter.format(selectedDate.time)
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = "Confirm Date of Birth") },
+            text = { Text("Are you sure you want to set your date of birth to $selectedDateString? This action cannot be undone.") },
+            confirmButton = {
+                Button(onClick = {
+                    dateOfBirthEditText.text = selectedDateString
+                    isDateOfBirthEditable = false
+                    // Save the date of birth to the database
+                    dbManager.updateUserProfile(userId, phoneNumberEditText.text.toString(), nationalityEditText.text.toString(), placeOfBirthEditText.text.toString(), passportNumberEditText.text.toString(), genderEditText.text.toString(), emergencyEditText.text.toString(), selectedDateString)
+                    onConfirm()
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                Button(onClick = onDismiss) {
+                    Text("No")
+                }
+            }
+        )
+    }
+
 
     private fun handleLogout() {
         sharedPreferences.edit().remove("userId").apply()
