@@ -1,5 +1,6 @@
 package com.example.meemeowairlines
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -69,6 +70,13 @@ class LoginActivity : ComponentActivity() {
 
         findViewById<Button>(R.id.googleLoginButton).setOnClickListener {
             signInWithGoogle()
+        }
+
+        // Check if user is already logged in
+        if (isUserLoggedIn()) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 
@@ -170,7 +178,6 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-
     private fun saveLoginState(userId: Long, rememberMe: Boolean) {
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         with(sharedPreferences.edit()) {
@@ -179,6 +186,13 @@ class LoginActivity : ComponentActivity() {
             putLong("userId", userId)
             apply()
         }
+    }
+
+    private fun isUserLoggedIn(): Boolean {
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val userId = sharedPreferences.getLong("userId", -1)
+        val rememberMe = sharedPreferences.getBoolean("rememberMe", false)
+        return userId != -1L && rememberMe
     }
 
     private fun navigateToMainActivity() {

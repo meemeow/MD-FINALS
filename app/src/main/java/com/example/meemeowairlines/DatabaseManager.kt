@@ -84,7 +84,7 @@ class DatabaseManager(context: Context) {
         passportNumber: String?,
         gender: String?,
         emergency: String?,
-        dateOfBirth: String? // Add dateOfBirth as a parameter
+        dateOfBirth: String?
     ): Boolean {
         val values = ContentValues().apply {
             put(DatabaseHelper.COLUMN_PHONE_NUMBER, phoneNumber)
@@ -93,7 +93,7 @@ class DatabaseManager(context: Context) {
             put(DatabaseHelper.COLUMN_PASSPORT_NUMBER, passportNumber)
             put(DatabaseHelper.COLUMN_GENDER, gender)
             put(DatabaseHelper.COLUMN_EMERGENCY, emergency)
-            put(DatabaseHelper.COLUMN_DATE_OF_BIRTH, dateOfBirth) // Save the date of birth
+            put(DatabaseHelper.COLUMN_DATE_OF_BIRTH, dateOfBirth)
         }
         val selection = "${DatabaseHelper.COLUMN_ID} = ?"
         val selectionArgs = arrayOf(id.toString())

@@ -304,9 +304,8 @@ class ProfileActivity : ComponentActivity() {
         )
     }
 
-
     private fun handleLogout() {
-        sharedPreferences.edit().remove("userId").apply()
+        sharedPreferences.edit().remove("userId").remove("rememberMe").apply() // Clear the rememberMe preference
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
