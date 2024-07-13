@@ -35,6 +35,26 @@
             android:exported="true"
             android:label="@string/profile_activity_title"
             android:theme="@style/Theme.MeemeowAirlines" />
+        <activity
+            android:name=".BookActivity"
+            android:exported="true"
+            android:label="@string/book_flight"
+            android:theme="@style/Theme.MeemeowAirlines" />
+        <activity
+            android:name=".CheckInActivity"
+            android:exported="true"
+            android:label="@string/checkin"
+            android:theme="@style/Theme.MeemeowAirlines" />
+        <activity
+            android:name=".ManageActivity"
+            android:exported="true"
+            android:label="@string/manage_booking"
+            android:theme="@style/Theme.MeemeowAirlines" />
+        <activity
+            android:name=".MoreActivity"
+            android:exported="true"
+            android:label="@string/more"
+            android:theme="@style/Theme.MeemeowAirlines" />
 
         <meta-data
             android:name="com.google.android.gms.auth.api.signin"

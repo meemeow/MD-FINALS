@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.meemeowairlines.ui.theme.YourAppTheme
 
@@ -81,7 +82,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
-    val navController = rememberNavController()
     val context = LocalContext.current
 
     val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -128,7 +128,7 @@ fun MainScreen() {
             )
         },
         bottomBar = {
-            BottomNavigationBar(navController = navController)
+            BottomNavigationBar()
         }
     ) { innerPadding ->
         Column(
@@ -178,7 +178,10 @@ fun MainScreen() {
                 contentAlignment = Alignment.Center
             ) {
                 Button(
-                    onClick = { /* Handle Book Now click */ },
+                    onClick = {
+                        val intent = Intent(context, BookActivity::class.java)
+                        context.startActivity(intent)
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFF99063)
                     ),
@@ -217,13 +220,14 @@ fun HandleBackButton(backPressedDispatcher: OnBackPressedDispatcher?) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: androidx.navigation.NavHostController) {
+fun BottomNavigationBar() {
+    val context = LocalContext.current
     val items = listOf(
-        BottomNavItem("home", "Home", R.drawable.home_1),
-        BottomNavItem("manage_booking", "Manage Booking", R.drawable.pass_2),
-        BottomNavItem("book_flight", "Book Flight", R.drawable.plane_3),
-        BottomNavItem("check_in", "Check-In", R.drawable.luggage_4),
-        BottomNavItem("more", "More", R.drawable.menu_5)
+        BottomNavItem("home", "Home", R.drawable.home_1, MainActivity::class.java),
+        BottomNavItem("manage_booking", "Manage Booking", R.drawable.pass_2, ManageActivity::class.java),
+        BottomNavItem("book_flight", "Book Flight", R.drawable.plane_3, BookActivity::class.java),
+        BottomNavItem("check_in", "Check-In", R.drawable.luggage_4, CheckInActivity::class.java),
+        BottomNavItem("more", "More", R.drawable.menu_5, MoreActivity::class.java)
     )
     NavigationBar(
         containerColor = Color(0xFF2C3446)
@@ -248,44 +252,15 @@ fun BottomNavigationBar(navController: androidx.navigation.NavHostController) {
                 },
                 selected = false,
                 onClick = {
-                    navController.navigate(item.route)
+                    val intent = Intent(context, item.activityClass)
+                    context.startActivity(intent)
                 }
             )
         }
     }
 }
 
-data class BottomNavItem(val route: String, val title: String, val iconRes: Int)
-
-@Composable
-fun ProfileScreen() {
-    // Content of the Profile screen
-}
-
-@Composable
-fun HomeScreen() {
-    // Content of the Home screen
-}
-
-@Composable
-fun ManageBookingScreen() {
-    // Content of the Manage Booking screen
-}
-
-@Composable
-fun BookFlightScreen() {
-    // Content of the Book Flight screen
-}
-
-@Composable
-fun CheckInScreen() {
-    // Content of the Check-In screen
-}
-
-@Composable
-fun MoreScreen() {
-    // Content of the More screen
-}
+data class BottomNavItem(val route: String, val title: String, val iconRes: Int, val activityClass: Class<*>)
 
 @Preview(showBackground = true)
 @Composable

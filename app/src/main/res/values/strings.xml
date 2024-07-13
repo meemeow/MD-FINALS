@@ -33,4 +33,8 @@
     <string name="account_info">Account Information:</string>
     <string name="emergency_contact_number">Emergency Contact</string>
     <string name="enter_emergency_contact_number">**** - *** - ****</string>
+    <string name="book_flight">Book Flight</string>
+    <string name="checkin">CheckIn</string>
+    <string name="manage_booking">Manage Booking</string>
+    <string name="more">More</string>
 </resources>
