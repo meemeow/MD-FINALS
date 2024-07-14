@@ -2,83 +2,60 @@ package com.example.meemeowairlines
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.meemeowairlines.ui.theme.YourAppTheme
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class SearchActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_search)
+
         val departure = intent.getStringExtra("departure")
         val arrival = intent.getStringExtra("arrival")
         val departureDate = intent.getStringExtra("departureDate")
         val arrivalDate = intent.getStringExtra("arrivalDate")
         val flightClass = intent.getStringExtra("flightClass")
+        val tripType = intent.getStringExtra("tripType")
 
-        setContent {
-            YourAppTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    SearchScreen(departure, arrival, departureDate, arrivalDate, flightClass)
-                }
-            }
+        val routes = if (tripType == "Round Trip") {
+            listOf(
+                "Manila (MNL) - Cebu (CEB)", "Manila (MNL) - Angeles City (CRK)", "Manila (MNL) - Davao City (DVO)", "Manila (MNL) - Iloilo City (ILO)", "Manila (MNL) - Kalibo (KLO)", "Manila (MNL) - Puerto Princesa (PPS)", "Manila (MNL) - Zamboanga City (ZAM)", "Manila (MNL) - General Santos City (GES)", "Manila (MNL) - Bacolod City (BCD)",
+                "Cebu (CEB) - Manila (MNL)", "Cebu (CEB) - Angeles City (CRK)", "Cebu (CEB) - Davao City (DVO)", "Cebu (CEB) - Iloilo City (ILO)", "Cebu (CEB) - Kalibo (KLO)", "Cebu (CEB) - Puerto Princesa (PPS)", "Cebu (CEB) - Zamboanga City (ZAM)", "Cebu (CEB) - General Santos City (GES)", "Cebu (CEB) - Bacolod City (BCD)",
+                "Angeles City (CRK) - Manila (MNL)", "Angeles City (CRK) - Cebu (CEB)", "Angeles City (CRK) - Davao City (DVO)", "Angeles City (CRK) - Iloilo City (ILO)", "Angeles City (CRK) - Kalibo (KLO)", "Angeles City (CRK) - Puerto Princesa (PPS)", "Angeles City (CRK) - Zamboanga City (ZAM)", "Angeles City (CRK) - General Santos City (GES)", "Angeles City (CRK) - Bacolod City (BCD)",
+                "Davao City (DVO) - Manila (MNL)", "Davao City (DVO) - Cebu (CEB)", "Davao City (DVO) - Angeles City (CRK)", "Davao City (DVO) - Iloilo City (ILO)", "Davao City (DVO) - Kalibo (KLO)", "Davao City (DVO) - Puerto Princesa (PPS)", "Davao City (DVO) - Zamboanga City (ZAM)", "Davao City (DVO) - General Santos City (GES)", "Davao City (DVO) - Bacolod City (BCD)",
+                "Iloilo City (ILO) - Manila (MNL)", "Iloilo City (ILO) - Cebu (CEB)", "Iloilo City (ILO) - Angeles City (CRK)", "Iloilo City (ILO) - Davao City (DVO)", "Iloilo City (ILO) - Kalibo (KLO)", "Iloilo City (ILO) - Puerto Princesa (PPS)", "Iloilo City (ILO) - Zamboanga City (ZAM)", "Iloilo City (ILO) - General Santos City (GES)", "Iloilo City (ILO) - Bacolod City (BCD)",
+                "Kalibo (KLO) - Manila (MNL)", "Kalibo (KLO) - Cebu (CEB)", "Kalibo (KLO) - Angeles City (CRK)", "Kalibo (KLO) - Davao City (DVO)", "Kalibo (KLO) - Iloilo City (ILO)", "Kalibo (KLO) - Puerto Princesa (PPS)", "Kalibo (KLO) - Zamboanga City (ZAM)", "Kalibo (KLO) - General Santos City (GES)", "Kalibo (KLO) - Bacolod City (BCD)",
+                "Puerto Princesa (PPS) - Manila (MNL)", "Puerto Princesa (PPS) - Cebu (CEB)", "Puerto Princesa (PPS) - Angeles City (CRK)", "Puerto Princesa (PPS) - Davao City (DVO)", "Puerto Princesa (PPS) - Iloilo City (ILO)", "Puerto Princesa (PPS) - Kalibo (KLO)", "Puerto Princesa (PPS) - Zamboanga City (ZAM)", "Puerto Princesa (PPS) - General Santos City (GES)", "Puerto Princesa (PPS) - Bacolod City (BCD)",
+                "Zamboanga City (ZAM) - Manila (MNL)", "Zamboanga City (ZAM) - Cebu (CEB)", "Zamboanga City (ZAM) - Angeles City (CRK)", "Zamboanga City (ZAM) - Davao City (DVO)", "Zamboanga City (ZAM) - Iloilo City (ILO)", "Zamboanga City (ZAM) - Kalibo (KLO)", "Zamboanga City (ZAM) - Puerto Princesa (PPS)", "Zamboanga City (ZAM) - General Santos City (GES)", "Zamboanga City (ZAM) - Bacolod City (BCD)",
+                "General Santos City (GES) - Manila (MNL)", "General Santos City (GES) - Cebu (CEB)", "General Santos City (GES) - Angeles City (CRK)", "General Santos City (GES) - Davao City (DVO)", "General Santos City (GES) - Iloilo City (ILO)", "General Santos City (GES) - Kalibo (KLO)", "General Santos City (GES) - Puerto Princesa (PPS)", "General Santos City (GES) - Zamboanga City (ZAM)", "General Santos City (GES) - Bacolod City (BCD)",
+                "Bacolod City (BCD) - Manila (MNL)", "Bacolod City (BCD) - Cebu (CEB)", "Bacolod City (BCD) - Angeles City (CRK)", "Bacolod City (BCD) - Davao City (DVO)", "Bacolod City (BCD) - Iloilo City (ILO)", "Bacolod City (BCD) - Kalibo (KLO)", "Bacolod City (BCD) - Puerto Princesa (PPS)", "Bacolod City (BCD) - Zamboanga City (ZAM)", "Bacolod City (BCD) - General Santos City (GES)"
+            )
+        } else {
+            listOf(
+                "Manila (MNL) - Cebu (CEB)", "Manila (MNL) - Angeles City (CRK)", "Manila (MNL) - Davao City (DVO)", "Manila (MNL) - Iloilo City (ILO)", "Manila (MNL) - Kalibo (KLO)", "Manila (MNL) - Puerto Princesa (PPS)", "Manila (MNL) - Zamboanga City (ZAM)", "Manila (MNL) - General Santos City (GES)", "Manila (MNL) - Bacolod City (BCD)",
+                "Cebu (CEB) - Manila (MNL)", "Cebu (CEB) - Angeles City (CRK)", "Cebu (CEB) - Davao City (DVO)", "Cebu (CEB) - Iloilo City (ILO)", "Cebu (CEB) - Kalibo (KLO)", "Cebu (CEB) - Puerto Princesa (PPS)", "Cebu (CEB) - Zamboanga City (ZAM)", "Cebu (CEB) - General Santos City (GES)", "Cebu (CEB) - Bacolod City (BCD)",
+                "Angeles City (CRK) - Manila (MNL)", "Angeles City (CRK) - Cebu (CEB)", "Angeles City (CRK) - Davao City (DVO)", "Angeles City (CRK) - Iloilo City (ILO)", "Angeles City (CRK) - Kalibo (KLO)", "Angeles City (CRK) - Puerto Princesa (PPS)", "Angeles City (CRK) - Zamboanga City (ZAM)", "Angeles City (CRK) - General Santos City (GES)", "Angeles City (CRK) - Bacolod City (BCD)",
+                "Davao City (DVO) - Manila (MNL)", "Davao City (DVO) - Cebu (CEB)", "Davao City (DVO) - Angeles City (CRK)", "Davao City (DVO) - Iloilo City (ILO)", "Davao City (DVO) - Kalibo (KLO)", "Davao City (DVO) - Puerto Princesa (PPS)", "Davao City (DVO) - Zamboanga City (ZAM)", "Davao City (DVO) - General Santos City (GES)", "Davao City (DVO) - Bacolod City (BCD)",
+                "Iloilo City (ILO) - Manila (MNL)", "Iloilo City (ILO) - Cebu (CEB)", "Iloilo City (ILO) - Angeles City (CRK)", "Iloilo City (ILO) - Davao City (DVO)", "Iloilo City (ILO) - Kalibo (KLO)", "Iloilo City (ILO) - Puerto Princesa (PPS)", "Iloilo City (ILO) - Zamboanga City (ZAM)", "Iloilo City (ILO) - General Santos City (GES)", "Iloilo City (ILO) - Bacolod City (BCD)",
+                "Kalibo (KLO) - Manila (MNL)", "Kalibo (KLO) - Cebu (CEB)", "Kalibo (KLO) - Angeles City (CRK)", "Kalibo (KLO) - Davao City (DVO)", "Kalibo (KLO) - Iloilo City (ILO)", "Kalibo (KLO) - Puerto Princesa (PPS)", "Kalibo (KLO) - Zamboanga City (ZAM)", "Kalibo (KLO) - General Santos City (GES)", "Kalibo (KLO) - Bacolod City (BCD)",
+                "Puerto Princesa (PPS) - Manila (MNL)", "Puerto Princesa (PPS) - Cebu (CEB)", "Puerto Princesa (PPS) - Angeles City (CRK)", "Puerto Princesa (PPS) - Davao City (DVO)", "Puerto Princesa (PPS) - Iloilo City (ILO)", "Puerto Princesa (PPS) - Kalibo (KLO)", "Puerto Princesa (PPS) - Zamboanga City (ZAM)", "Puerto Princesa (PPS) - General Santos City (GES)", "Puerto Princesa (PPS) - Bacolod City (BCD)",
+                "Zamboanga City (ZAM) - Manila (MNL)", "Zamboanga City (ZAM) - Cebu (CEB)", "Zamboanga City (ZAM) - Angeles City (CRK)", "Zamboanga City (ZAM) - Davao City (DVO)", "Zamboanga City (ZAM) - Iloilo City (ILO)", "Zamboanga City (ZAM) - Kalibo (KLO)", "Zamboanga City (ZAM) - Puerto Princesa (PPS)", "Zamboanga City (ZAM) - General Santos City (GES)", "Zamboanga City (ZAM) - Bacolod City (BCD)",
+                "General Santos City (GES) - Manila (MNL)", "General Santos City (GES) - Cebu (CEB)", "General Santos City (GES) - Angeles City (CRK)", "General Santos City (GES) - Davao City (DVO)", "General Santos City (GES) - Iloilo City (ILO)", "General Santos City (GES) - Kalibo (KLO)", "General Santos City (GES) - Puerto Princesa (PPS)", "General Santos City (GES) - Zamboanga City (ZAM)", "General Santos City (GES) - Bacolod City (BCD)",
+                "Bacolod City (BCD) - Manila (MNL)", "Bacolod City (BCD) - Cebu (CEB)", "Bacolod City (BCD) - Angeles City (CRK)", "Bacolod City (BCD) - Davao City (DVO)", "Bacolod City (BCD) - Iloilo City (ILO)", "Bacolod City (BCD) - Kalibo (KLO)", "Bacolod City (BCD) - Puerto Princesa (PPS)", "Bacolod City (BCD) - Zamboanga City (ZAM)", "Bacolod City (BCD) - General Santos City (GES)"
+            )
         }
-    }
-}
 
-@Composable
-fun SearchScreen(departure: String?, arrival: String?, departureDate: String?, arrivalDate: String?, flightClass: String?) {
-    val routes = listOf(
-        "MNL - CEB", "MNL - CRK", "MNL - DVO", "MNL - ILO", "MNL - KLO", "MNL - PPS", "MNL - ZAM", "MNL - GES", "MNL - BCD",
-        "CEB - MNL", "CEB - CRK", "CEB - DVO", "CEB - ILO", "CEB - KLO", "CEB - PPS", "CEB - ZAM", "CEB - GES", "CEB - BCD",
-        "CRK - MNL", "CRK - CEB", "CRK - DVO", "CRK - ILO", "CRK - KLO", "CRK - PPS", "CRK - ZAM", "CRK - GES", "CRK - BCD",
-        "DVO - MNL", "DVO - CEB", "DVO - CRK", "DVO - ILO", "DVO - KLO", "DVO - PPS", "DVO - ZAM", "DVO - GES", "DVO - BCD",
-        "ILO - MNL", "ILO - CEB", "ILO - CRK", "ILO - DVO", "ILO - KLO", "ILO - PPS", "ILO - ZAM", "ILO - GES", "ILO - BCD",
-        "KLO - MNL", "KLO - CEB", "KLO - CRK", "KLO - DVO", "KLO - ILO", "KLO - PPS", "KLO - ZAM", "KLO - GES", "KLO - BCD",
-        "PPS - MNL", "PPS - CEB", "PPS - CRK", "PPS - DVO", "PPS - ILO", "PPS - KLO", "PPS - ZAM", "PPS - GES", "PPS - BCD",
-        "ZAM - MNL", "ZAM - CEB", "ZAM - CRK", "ZAM - DVO", "ZAM - ILO", "ZAM - KLO", "ZAM - PPS", "ZAM - GES", "ZAM - BCD",
-        "GES - MNL", "GES - CEB", "GES - CRK", "GES - DVO", "GES - ILO", "GES - KLO", "GES - PPS", "GES - ZAM", "GES - BCD",
-        "BCD - MNL", "BCD - CEB", "BCD - CRK", "BCD - DVO", "BCD - ILO", "BCD - KLO", "BCD - PPS", "BCD - ZAM", "BCD - GES"
-    )
 
-    val filteredRoutes = routes.filter {
-        it.startsWith(departure ?: "") && it.endsWith(arrival ?: "")
-    }
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(16.dp)
-    ) {
-        items(filteredRoutes) { route ->
-            RouteCard(route = route, departureDate = departureDate, arrivalDate = arrivalDate)
+        val filteredRoutes = routes.filter { route ->
+            val departureAirport = departure?.substringBefore(", ") ?: ""
+            val arrivalAirport = arrival?.substringBefore(", ") ?: ""
+            route.startsWith(departureAirport) && route.endsWith(arrivalAirport)
         }
-    }
-}
 
-@Composable
-fun RouteCard(route: String, departureDate: String?, arrivalDate: String?) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation()
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-        ) {
-            Text(text = route, fontSize = 18.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Departure: ${departureDate ?: "N/A"}", fontSize = 14.sp)
-            Text(text = "Arrival: ${arrivalDate ?: "N/A"}", fontSize = 14.sp)
-        }
+
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = GridLayoutManager(this, 1)
+        recyclerView.adapter = RouteAdapter(this, filteredRoutes, departureDate, if (tripType == "Round Trip") arrivalDate else null, tripType, flightClass)
+
     }
 }

@@ -330,16 +330,16 @@ fun ManageScreen() {
 fun BookScreen() {
     var tripType by remember { mutableStateOf("Round Trip") }
     val airports = listOf(
-        "MNL - Manila",
-        "CEB - Cebu",
-        "CRK - Angeles City, Pampanga",
-        "DVO - Davao City",
-        "ILO - Iloilo City",
-        "KLO - Kalibo, Aklan",
-        "PPS - Puerto Princesa, Palawan",
-        "ZAM - Zamboanga City",
-        "GES - General Santos City",
-        "BCD - Bacolod City"
+        "Manila (MNL)",
+        "Cebu (CEB)",
+        "Angeles City (CRK)",
+        "Davao City (DVO)",
+        "Iloilo City (ILO)",
+        "Kalibo (KLO)",
+        "Puerto Princesa (PPS)",
+        "Zamboanga City (ZAM)",
+        "General Santos City (GES)",
+        "Bacolod City (BCD)"
     )
 
     Column(
@@ -419,6 +419,31 @@ fun RoundTripForm(airports: List<String>) {
             onEndDateSelected = { date -> endDate = date }
         )
     }
+
+    Button(
+        onClick = {
+            if (departure.isEmpty() || arrival.isEmpty() || startDate.isEmpty() || endDate.isEmpty() || ageGroups.value.values.sum() == 0) {
+                Toast.makeText(context, "Please fill all fields and select at least one passenger.", Toast.LENGTH_SHORT).show()
+            } else if (SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(startDate)!!
+                    .after(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(endDate)!!)
+            ) {
+                Toast.makeText(context, "Departure date cannot be later than arrival date.", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(context, SearchActivity::class.java).apply {
+                    putExtra("departure", departure)
+                    putExtra("arrival", arrival)
+                    putExtra("departureDate", startDate)
+                    putExtra("arrivalDate", endDate)
+                    putExtra("flightClass", flightClass)
+                    putExtra("tripType", "Round Trip")
+                }
+                context.startActivity(intent)
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Search")
+    }
 }
 
 
@@ -461,6 +486,27 @@ fun OneWayForm(airports: List<String>) {
                 travelDate = date
             }
         )
+    }
+
+    Button(
+        onClick = {
+            if (departure.isEmpty() || arrival.isEmpty() || travelDate.isEmpty() || ageGroups.value.values.sum() == 0) {
+                Toast.makeText(context, "Please fill all fields and select at least one passenger.", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(context, SearchActivity::class.java).apply {
+                    putExtra("departure", departure)
+                    putExtra("arrival", arrival)
+                    putExtra("departureDate", travelDate)
+                    putExtra("arrivalDate", "")
+                    putExtra("flightClass", flightClass)
+                    putExtra("tripType", "One Way")
+                }
+                context.startActivity(intent)
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Search")
     }
 }
 
@@ -510,22 +556,6 @@ fun FlightForm(
             onOptionSelected = onFlightClassChange
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
-                // Navigate to SearchActivity with search criteria
-                val intent = Intent(context, SearchActivity::class.java).apply {
-                    putExtra("departure", departure)
-                    putExtra("arrival", arrival)
-                    putExtra("departureDate", departureDate)
-                    putExtra("arrivalDate", arrivalDate)
-                    putExtra("flightClass", flightClass)
-                }
-                context.startActivity(intent)
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Search")
-        }
     }
 }
 
@@ -751,7 +781,6 @@ fun PassengerCounter(ageGroups: MutableState<Map<String, Int>>) {
         }
     }
 }
-
 
 
 @Composable
