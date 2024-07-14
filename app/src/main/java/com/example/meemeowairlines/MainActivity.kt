@@ -436,6 +436,7 @@ fun RoundTripForm(airports: List<String>) {
                     putExtra("arrivalDate", endDate)
                     putExtra("flightClass", flightClass)
                     putExtra("tripType", "Round Trip")
+                    putExtra("passengerCount", ageGroups.value.values.sum())
                 }
                 context.startActivity(intent)
             }
@@ -500,6 +501,7 @@ fun OneWayForm(airports: List<String>) {
                     putExtra("arrivalDate", "")
                     putExtra("flightClass", flightClass)
                     putExtra("tripType", "One Way")
+                    putExtra("passengerCount", ageGroups.value.values.sum())
                 }
                 context.startActivity(intent)
             }

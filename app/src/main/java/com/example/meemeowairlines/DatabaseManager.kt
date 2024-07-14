@@ -48,6 +48,35 @@ class DatabaseManager(context: Context) {
         }
     }
 
+    fun insertBooking(
+        bookingReference: String, ticketNumber: String, flightNumber: String, passengerName: String,
+        time: String, departure: String, arrival: String, departureDate: String, arrivalDate: String?,
+        flightClass: String, passengerCount: Int, totalPrice: Double // Added parameters
+    ): Long {
+        return try {
+            val values = ContentValues().apply {
+                put(DatabaseHelper.COLUMN_BOOKING_REFERENCE, bookingReference)
+                put(DatabaseHelper.COLUMN_TICKET_NUMBER, ticketNumber)
+                put(DatabaseHelper.COLUMN_FLIGHT_NUMBER, flightNumber)
+                put(DatabaseHelper.COLUMN_PASSENGER_NAME, passengerName)
+                put(DatabaseHelper.COLUMN_TIME, time)
+                put(DatabaseHelper.COLUMN_DEPARTURE, departure)
+                put(DatabaseHelper.COLUMN_ARRIVAL, arrival)
+                put(DatabaseHelper.COLUMN_DEPARTURE_DATE, departureDate)
+                put(DatabaseHelper.COLUMN_ARRIVAL_DATE, arrivalDate)
+                put(DatabaseHelper.COLUMN_FLIGHT_CLASS, flightClass)
+                put(DatabaseHelper.COLUMN_PASSENGER_COUNT, passengerCount)
+                put(DatabaseHelper.COLUMN_TOTAL_PRICE, totalPrice)
+            }
+            val result = db.insert(DatabaseHelper.TABLE_BOOKINGS, null, values)
+            Log.d("DatabaseManager", "insertBooking: result=$result")
+            result
+        } catch (e: Exception) {
+            Log.e("DatabaseManager", "Error inserting booking", e)
+            -1
+        }
+    }
+
     fun getUserByEmail(email: String): Cursor? {
         val columns = arrayOf(
             DatabaseHelper.COLUMN_ID, DatabaseHelper.COLUMN_FIRST_NAME, DatabaseHelper.COLUMN_LAST_NAME,
@@ -106,4 +135,21 @@ class DatabaseManager(context: Context) {
         val selectionArgs = arrayOf(id.toString())
         return db.delete(DatabaseHelper.TABLE_USERS, selection, selectionArgs)
     }
+
+    fun getLastBookingId(): Long {
+        val query = "SELECT MAX(id) FROM ${DatabaseHelper.TABLE_BOOKINGS}"
+        val cursor = db.rawQuery(query, null)
+        val lastId = if (cursor.moveToFirst()) cursor.getLong(0) else 0
+        cursor.close()
+        return lastId
+    }
+
+    fun getLastTicketId(): Long {
+        val query = "SELECT MAX(id) FROM ${DatabaseHelper.TABLE_BOOKINGS}"
+        val cursor = db.rawQuery(query, null)
+        val lastId = if (cursor.moveToFirst()) cursor.getLong(0) else 0
+        cursor.close()
+        return lastId
+    }
+
 }
