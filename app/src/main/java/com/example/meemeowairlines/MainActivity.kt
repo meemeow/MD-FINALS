@@ -6,6 +6,25 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import java.util.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.border
+import androidx.compose.material3.*
+import android.widget.DatePicker
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.OnBackPressedCallback
@@ -14,36 +33,37 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.meemeowairlines.ui.theme.YourAppTheme
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import java.text.SimpleDateFormat
+import android.app.DatePickerDialog
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("InvalidColorHexValue")
@@ -308,8 +328,426 @@ fun ManageScreen() {
 
 @Composable
 fun BookScreen() {
-    // Content for Book Flight screen
+    var tripType by remember { mutableStateOf("Round Trip") }
+    val airports = listOf(
+        "MNL - Manila",
+        "CEB - Cebu",
+        "CRK - Angeles City, Pampanga",
+        "DVO - Davao City",
+        "ILO - Iloilo City",
+        "KLO - Kalibo, Aklan",
+        "PPS - Puerto Princesa, Palawan",
+        "ZAM - Zamboanga City",
+        "GES - General Santos City",
+        "BCD - Bacolod City"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFFFFEEF))
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            TextButton(
+                onClick = { tripType = "Round Trip" },
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = if (tripType == "Round Trip") Color(0xFFF99063) else Color.Transparent,
+                    contentColor = if (tripType == "Round Trip") Color.White else Color(0xFFF99063)
+                )
+            ) {
+                Text("Round Trip")
+            }
+            TextButton(
+                onClick = { tripType = "One Way" },
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = if (tripType == "One Way") Color(0xFFF99063) else Color.Transparent,
+                    contentColor = if (tripType == "One Way") Color.White else Color(0xFFF99063)
+                )
+            ) {
+                Text("One Way")
+            }
+        }
+
+        if (tripType == "Round Trip") {
+            RoundTripForm(airports)
+        } else {
+            OneWayForm(airports)
+        }
+    }
 }
+
+@Composable
+fun RoundTripForm(airports: List<String>) {
+    var departure by remember { mutableStateOf("") }
+    var arrival by remember { mutableStateOf("") }
+    var startDate by remember { mutableStateOf("") }
+    var endDate by remember { mutableStateOf("") }
+    val ageGroups = remember {
+        mutableStateOf(
+            mapOf(
+                "Child (2-11)" to 0,
+                "Adult (12-59)" to 0,
+                "Senior (60+)" to 0
+            )
+        )
+    }
+    var flightClass by remember { mutableStateOf("Economy") }
+
+    val context = LocalContext.current
+
+    FlightForm(
+        airports,
+        departure,
+        arrival,
+        startDate,
+        endDate,
+        ageGroups,
+        flightClass,
+        onDepartureChange = { departure = it },
+        onArrivalChange = { arrival = it },
+        onTravelDatesChange = null,
+        onTravelDateChange = null,
+        onFlightClassChange = { flightClass = it }
+    ) {
+        DateRangePickerDialog(
+            context = context,
+            startDate = startDate,
+            endDate = endDate,
+            onStartDateSelected = { date -> startDate = date },
+            onEndDateSelected = { date -> endDate = date }
+        )
+    }
+}
+
+
+@Composable
+fun OneWayForm(airports: List<String>) {
+    var departure by remember { mutableStateOf("") }
+    var arrival by remember { mutableStateOf("") }
+    var travelDate by remember { mutableStateOf("") }
+    val ageGroups = remember {
+        mutableStateOf(
+            mapOf(
+                "Child (2-11)" to 0,
+                "Adult (12-59)" to 0,
+                "Senior (60+)" to 0
+            )
+        )
+    }
+    var flightClass by remember { mutableStateOf("Economy") }
+
+    val context = LocalContext.current
+
+    FlightForm(
+        airports,
+        departure,
+        arrival,
+        travelDate,
+        null,
+        ageGroups,
+        flightClass,
+        onDepartureChange = { departure = it },
+        onArrivalChange = { arrival = it },
+        onTravelDatesChange = null,
+        onTravelDateChange = { date -> travelDate = date },
+        onFlightClassChange = { flightClass = it }
+    ) {
+        DatePickerDialog(
+            context = context,
+            selectedDate = travelDate,
+            onDateSelected = { date ->
+                travelDate = date
+            }
+        )
+    }
+}
+
+@Composable
+fun FlightForm(
+    airports: List<String>,
+    departure: String,
+    arrival: String,
+    departureDate: String?,
+    arrivalDate: String?,
+    ageGroups: MutableState<Map<String, Int>>,
+    flightClass: String,
+    onDepartureChange: (String) -> Unit,
+    onArrivalChange: (String) -> Unit,
+    onTravelDatesChange: ((Pair<String, String>) -> Unit)?,
+    onTravelDateChange: ((String) -> Unit)?,
+    onFlightClassChange: (String) -> Unit,
+    datePickerContent: @Composable () -> Unit
+) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        DropdownMenu(
+            label = "Departure",
+            options = airports,
+            selectedOption = departure,
+            onOptionSelected = onDepartureChange
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        DropdownMenu(
+            label = "Arrival",
+            options = airports.filter { it != departure },
+            selectedOption = arrival,
+            onOptionSelected = onArrivalChange
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        datePickerContent()
+
+        Spacer(modifier = Modifier.height(8.dp))
+        PassengerCounter(ageGroups)
+        Spacer(modifier = Modifier.height(8.dp))
+        DropdownMenu(
+            label = "Class",
+            options = listOf("Economy", "Business", "First Class"),
+            selectedOption = flightClass,
+            onOptionSelected = onFlightClassChange
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                // Handle search button click
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Search")
+        }
+    }
+}
+
+@Composable
+fun DatePickerDialog(
+    context: Context,
+    selectedDate: String,
+    onDateSelected: (String) -> Unit
+) {
+    val calendar = Calendar.getInstance()
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    val oneMonthLater = calendar.apply { add(Calendar.MONTH, 1) }.time
+    calendar.time = Date()
+
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                calendar.set(year, month, dayOfMonth)
+                val selected = calendar.time
+                if (selected.before(oneMonthLater) && selected.after(Date())) {
+                    onDateSelected(dateFormat.format(selected))
+                } else {
+                    Toast.makeText(context, "Date must be within one month from now.", Toast.LENGTH_SHORT).show()
+                }
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            datePicker.minDate = System.currentTimeMillis()
+            datePicker.maxDate = oneMonthLater.time
+        }
+    }
+
+    Text(text = "Departure Date", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+    Text(
+        text = selectedDate.ifEmpty { "Select Date" },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+            .padding(8.dp)
+            .clickable {
+                datePickerDialog.show()
+            },
+        color = if (selectedDate.isEmpty()) Color.Gray else Color.Black
+    )
+}
+
+@Composable
+fun DateRangePickerDialog(
+    context: Context,
+    startDate: String,
+    endDate: String,
+    onStartDateSelected: (String) -> Unit,
+    onEndDateSelected: (String) -> Unit
+) {
+    val calendar = Calendar.getInstance()
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    val oneMonthLater = calendar.apply { add(Calendar.MONTH, 1) }.time
+    calendar.time = Date()
+
+    val startDatePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                calendar.set(year, month, dayOfMonth)
+                val selected = calendar.time
+                if (selected.before(oneMonthLater) && selected.after(Date())) {
+                    onStartDateSelected(dateFormat.format(selected))
+                } else {
+                    Toast.makeText(context, "Date must be within one month from now.", Toast.LENGTH_SHORT).show()
+                }
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            datePicker.minDate = System.currentTimeMillis()
+            datePicker.maxDate = oneMonthLater.time
+        }
+    }
+
+    val endDatePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                calendar.set(year, month, dayOfMonth)
+                val selected = calendar.time
+                if (selected.before(oneMonthLater) && selected.after(Date())) {
+                    if (startDate.isNotEmpty() && selected.before(dateFormat.parse(startDate))) {
+                        Toast.makeText(context, "Arrival date must be after departure date.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        onEndDateSelected(dateFormat.format(selected))
+                    }
+                } else {
+                    Toast.makeText(context, "Date must be within one month from now.", Toast.LENGTH_SHORT).show()
+                }
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            datePicker.minDate = System.currentTimeMillis()
+            datePicker.maxDate = oneMonthLater.time
+        }
+    }
+
+    Column {
+        Text(text = "Departure Date", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+        Text(
+            text = startDate.ifEmpty { "Select Date" },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                .padding(8.dp)
+                .clickable {
+                    startDatePickerDialog.show()
+                },
+            color = if (startDate.isEmpty()) Color.Gray else Color.Black
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Arrival Date", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+        Text(
+            text = endDate.ifEmpty { "Select Date" },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                .padding(8.dp)
+                .clickable {
+                    endDatePickerDialog.show()
+                },
+            color = if (endDate.isEmpty()) Color.Gray else Color.Black
+        )
+    }
+}
+
+@Composable
+fun DropdownMenu(label: String, options: List<String>, selectedOption: String, onOptionSelected: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        Text(text = label, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+        Box {
+            Text(
+                text = selectedOption.ifEmpty { "Select $label" },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clickable { expanded = true }
+                    .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                    .padding(8.dp),
+                color = if (selectedOption.isEmpty()) Color.Gray else Color.Black
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    }) {
+                        Text(option)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DropdownMenuItem(onClick: () -> Unit, interactionSource: @Composable () -> Unit) {
+    val interactionSourceInstance = remember { MutableInteractionSource() }
+
+    Box(
+        modifier = Modifier
+            .size(width = 295.dp, height = 45.dp)
+            .clickable(interactionSource = interactionSourceInstance, indication = null) {
+                onClick()
+            }
+            .padding(8.dp)
+    )
+    {
+        interactionSource()
+    }
+}
+
+@Composable
+fun PassengerCounter(ageGroups: MutableState<Map<String, Int>>) {
+    val context = LocalContext.current
+
+    Column {
+        Text(text = "Passengers", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+        ageGroups.value.keys.forEach { ageGroup ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(ageGroup, modifier = Modifier.weight(1f), color = Color(0xFFF99063))
+                IconButton(onClick = {
+                    val currentCount = ageGroups.value.values.sum()
+                    if (currentCount < 9) {
+                        val updatedCount = (ageGroups.value[ageGroup] ?: 0) + 1
+                        ageGroups.value = ageGroups.value.toMutableMap().apply {
+                            this[ageGroup] = updatedCount
+                        }
+                    } else {
+                        Toast.makeText(context, "Maximum 9 passengers allowed.", Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add", tint = Color(0xFFF99063))
+                }
+                Text("${ageGroups.value[ageGroup]}", color = Color(0xFFF99063))
+                IconButton(onClick = {
+                    val updatedCount = (ageGroups.value[ageGroup] ?: 0) - 1
+                    if (updatedCount >= 0) {
+                        ageGroups.value = ageGroups.value.toMutableMap().apply {
+                            this[ageGroup] = updatedCount
+                        }
+                    }
+                }) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Remove", tint = Color(0xFFF99063))
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun CheckInScreen() {
