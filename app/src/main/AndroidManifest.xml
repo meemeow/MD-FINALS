@@ -8,7 +8,6 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MeemeowAirlines"
@@ -17,7 +16,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="Meemeow Airlines"
             android:theme="@style/Theme.MeemeowAirlines"
             android:launchMode="singleTask">
             <intent-filter>
@@ -28,12 +27,12 @@
         <activity
             android:name=".LoginActivity"
             android:exported="true"
-            android:label="@string/login_activity_title"
+            android:label="Login"
             android:theme="@style/Theme.MeemeowAirlines" />
         <activity
             android:name=".ProfileActivity"
             android:exported="true"
-            android:label="@string/profile_activity_title"
+            android:label="Profile"
             android:theme="@style/Theme.MeemeowAirlines" />
         <activity
             android:name=".BoardingPassActivity"
@@ -69,6 +68,11 @@
             android:name=".TermsActivity"
             android:exported="true"
             android:label="Terms and Conditions"
+            android:theme="@style/Theme.MeemeowAirlines" />
+        <activity
+            android:name=".SearchActivity"
+            android:exported="true"
+            android:label="Search"
             android:theme="@style/Theme.MeemeowAirlines" />
 
         <meta-data
