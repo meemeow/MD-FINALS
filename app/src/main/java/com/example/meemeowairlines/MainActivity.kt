@@ -480,6 +480,8 @@ fun FlightForm(
     onFlightClassChange: (String) -> Unit,
     datePickerContent: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
+
     Column(modifier = Modifier.padding(16.dp)) {
         DropdownMenu(
             label = "Departure",
@@ -510,7 +512,15 @@ fun FlightForm(
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                // Handle search button click
+                // Navigate to SearchActivity with search criteria
+                val intent = Intent(context, SearchActivity::class.java).apply {
+                    putExtra("departure", departure)
+                    putExtra("arrival", arrival)
+                    putExtra("departureDate", departureDate)
+                    putExtra("arrivalDate", arrivalDate)
+                    putExtra("flightClass", flightClass)
+                }
+                context.startActivity(intent)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -529,7 +539,6 @@ fun DatePickerDialog(
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     val oneMonthLater = calendar.apply { add(Calendar.MONTH, 1) }.time
-    calendar.time = Date()
 
     val datePickerDialog = remember {
         DatePickerDialog(
@@ -537,18 +546,17 @@ fun DatePickerDialog(
             { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
                 calendar.set(year, month, dayOfMonth)
                 val selected = calendar.time
-                if (selected.before(oneMonthLater) && selected.after(Date())) {
+                if (selected.after(oneMonthLater)) {
                     onDateSelected(dateFormat.format(selected))
                 } else {
-                    Toast.makeText(context, "Date must be within one month from now.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Date must be after one month from now.", Toast.LENGTH_SHORT).show()
                 }
             },
             calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.MONTH) + 1,  // Set initial month to one month later
             calendar.get(Calendar.DAY_OF_MONTH)
         ).apply {
-            datePicker.minDate = System.currentTimeMillis()
-            datePicker.maxDate = oneMonthLater.time
+            datePicker.minDate = oneMonthLater.time
         }
     }
 
@@ -579,7 +587,6 @@ fun DateRangePickerDialog(
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     val oneMonthLater = calendar.apply { add(Calendar.MONTH, 1) }.time
-    calendar.time = Date()
 
     val startDatePickerDialog = remember {
         DatePickerDialog(
@@ -587,18 +594,17 @@ fun DateRangePickerDialog(
             { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
                 calendar.set(year, month, dayOfMonth)
                 val selected = calendar.time
-                if (selected.before(oneMonthLater) && selected.after(Date())) {
+                if (selected.after(oneMonthLater)) {
                     onStartDateSelected(dateFormat.format(selected))
                 } else {
-                    Toast.makeText(context, "Date must be within one month from now.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Date must be after one month from now.", Toast.LENGTH_SHORT).show()
                 }
             },
             calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.MONTH) + 1,
             calendar.get(Calendar.DAY_OF_MONTH)
         ).apply {
-            datePicker.minDate = System.currentTimeMillis()
-            datePicker.maxDate = oneMonthLater.time
+            datePicker.minDate = oneMonthLater.time
         }
     }
 
@@ -608,22 +614,21 @@ fun DateRangePickerDialog(
             { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
                 calendar.set(year, month, dayOfMonth)
                 val selected = calendar.time
-                if (selected.before(oneMonthLater) && selected.after(Date())) {
+                if (selected.after(oneMonthLater)) {
                     if (startDate.isNotEmpty() && selected.before(dateFormat.parse(startDate))) {
                         Toast.makeText(context, "Arrival date must be after departure date.", Toast.LENGTH_SHORT).show()
                     } else {
                         onEndDateSelected(dateFormat.format(selected))
                     }
                 } else {
-                    Toast.makeText(context, "Date must be within one month from now.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Date must be after one month from now.", Toast.LENGTH_SHORT).show()
                 }
             },
             calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.MONTH) + 1,
             calendar.get(Calendar.DAY_OF_MONTH)
         ).apply {
-            datePicker.minDate = System.currentTimeMillis()
-            datePicker.maxDate = oneMonthLater.time
+            datePicker.minDate = oneMonthLater.time
         }
     }
 
