@@ -36,24 +36,39 @@
             android:label="@string/profile_activity_title"
             android:theme="@style/Theme.MeemeowAirlines" />
         <activity
-            android:name=".BookActivity"
+            android:name=".BoardingPassActivity"
             android:exported="true"
-            android:label="@string/book_flight"
+            android:label="Boarding Pass"
             android:theme="@style/Theme.MeemeowAirlines" />
         <activity
-            android:name=".CheckInActivity"
+            android:name=".ContactUsActivity"
             android:exported="true"
-            android:label="@string/checkin"
+            android:label="Contact Us"
             android:theme="@style/Theme.MeemeowAirlines" />
         <activity
-            android:name=".ManageActivity"
+            android:name=".CovidInfoActivity"
             android:exported="true"
-            android:label="@string/manage_booking"
+            android:label="About Covid-19"
             android:theme="@style/Theme.MeemeowAirlines" />
         <activity
-            android:name=".MoreActivity"
+            android:name=".FlightDisruptionActivity"
             android:exported="true"
-            android:label="@string/more"
+            android:label="Flight Disruption"
+            android:theme="@style/Theme.MeemeowAirlines" />
+        <activity
+            android:name=".FlightStatusActivity"
+            android:exported="true"
+            android:label="Flight Status"
+            android:theme="@style/Theme.MeemeowAirlines" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true"
+            android:label="Settings"
+            android:theme="@style/Theme.MeemeowAirlines" />
+        <activity
+            android:name=".TermsActivity"
+            android:exported="true"
+            android:label="Terms and Conditions"
             android:theme="@style/Theme.MeemeowAirlines" />
 
         <meta-data
