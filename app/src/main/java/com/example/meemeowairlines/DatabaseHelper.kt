@@ -8,7 +8,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "MeemeowAirlines.db"
-        private const val DATABASE_VERSION = 16 // Incremented version number
+        private const val DATABASE_VERSION = 1
         const val TABLE_USERS = "users"
         const val TABLE_BOOKINGS = "bookings"
 
@@ -37,8 +37,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val COLUMN_DEPARTURE_DATE = "departure_date"
         const val COLUMN_ARRIVAL_DATE = "arrival_date"
         const val COLUMN_FLIGHT_CLASS = "flight_class"
-        const val COLUMN_PASSENGER_COUNT = "passenger_count" // New column
-        const val COLUMN_TOTAL_PRICE = "total_price" // New column
+        const val COLUMN_PASSENGER_COUNT = "passenger_count"
+        const val COLUMN_TOTAL_PRICE = "total_price"
+        const val COLUMN_CHECKIN_STATUS = "checkin_status"
+        const val COLUMN_USER_ID = "user_id"  // New column
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -68,15 +70,17 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 + COLUMN_DEPARTURE_DATE + " TEXT,"
                 + COLUMN_ARRIVAL_DATE + " TEXT,"
                 + COLUMN_FLIGHT_CLASS + " TEXT,"
-                + COLUMN_PASSENGER_COUNT + " INTEGER," // New column
-                + COLUMN_TOTAL_PRICE + " REAL" + ")") // New column
+                + COLUMN_PASSENGER_COUNT + " INTEGER,"
+                + COLUMN_TOTAL_PRICE + " REAL,"
+                + COLUMN_CHECKIN_STATUS + " TEXT DEFAULT 'Processing',"
+                + COLUMN_USER_ID + " INTEGER,"
+                + "FOREIGN KEY($COLUMN_USER_ID) REFERENCES $TABLE_USERS($COLUMN_ID))")
         db.execSQL(createBookingsTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        if (oldVersion < 16) {
-            db.execSQL("ALTER TABLE $TABLE_BOOKINGS ADD COLUMN $COLUMN_PASSENGER_COUNT INTEGER")
-            db.execSQL("ALTER TABLE $TABLE_BOOKINGS ADD COLUMN $COLUMN_TOTAL_PRICE REAL")
-        }
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_BOOKINGS")
+        onCreate(db)
     }
 }

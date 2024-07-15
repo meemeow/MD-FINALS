@@ -62,6 +62,8 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 
@@ -323,7 +325,91 @@ fun HomeScreen(navController: NavHostController) {
 
 @Composable
 fun ManageScreen() {
-    // Content for Manage Booking screen
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+    val userId = sharedPreferences.getLong("user_id", -1)
+
+    if (userId == -1L) {
+        Toast.makeText(context, "User not logged in", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    val dbManager = remember { DatabaseManager(context) }
+    val bookings = remember { mutableStateOf<List<Booking>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        loadUserBookings(dbManager, userId) { bookings.value = it }
+    }
+
+    LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        items(bookings.value) { booking ->
+            BookingItem(booking)
+        }
+    }
+}
+
+fun loadUserBookings(dbManager: DatabaseManager, userId: Long, onBookingsLoaded: (List<Booking>) -> Unit) {
+    val cursor = dbManager.getUserBookings(userId)
+    if (cursor != null && cursor.moveToFirst()) {
+        val bookings = mutableListOf<Booking>()
+        do {
+            val booking = Booking(
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_BOOKING_REFERENCE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TICKET_NUMBER)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FLIGHT_NUMBER)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PASSENGER_NAME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TIME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DEPARTURE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ARRIVAL)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DEPARTURE_DATE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ARRIVAL_DATE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FLIGHT_CLASS)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PASSENGER_COUNT)),
+                cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TOTAL_PRICE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CHECKIN_STATUS))
+            )
+            bookings.add(booking)
+        } while (cursor.moveToNext())
+
+        onBookingsLoaded(bookings)
+    } else {
+        onBookingsLoaded(emptyList())
+    }
+}
+
+data class Booking(
+    val bookingReference: String,
+    val ticketNumber: String,
+    val flightNumber: String,
+    val passengerName: String,
+    val time: String,
+    val departure: String,
+    val arrival: String,
+    val departureDate: String,
+    val arrivalDate: String?,
+    val flightClass: String,
+    val passengerCount: Int,
+    val totalPrice: Double,
+    val checkinStatus: String
+)
+
+@Composable
+fun BookingItem(booking: Booking) {
+    Column(modifier = Modifier.fillMaxWidth().padding(8.dp).border(BorderStroke(1.dp, Color.Gray), RoundedCornerShape(8.dp)).padding(8.dp)) {
+        Text(text = "Booking Reference: ${booking.bookingReference}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF99063))
+        Text(text = "Ticket Number: ${booking.ticketNumber}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Flight Number: ${booking.flightNumber}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Passenger Name: ${booking.passengerName}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Time: ${booking.time}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Departure: ${booking.departure}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Arrival: ${booking.arrival}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Departure Date: ${booking.departureDate}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Arrival Date: ${booking.arrivalDate ?: "N/A"}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Class: ${booking.flightClass}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Passenger Count: ${booking.passengerCount}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Total Price: PHP ${booking.totalPrice}", fontSize = 16.sp, color = Color(0xFFF99063))
+        Text(text = "Check-in Status: ${booking.checkinStatus}", fontSize = 16.sp, color = Color(0xFFF99063))
+    }
 }
 
 @Composable

@@ -49,9 +49,10 @@ class DatabaseManager(context: Context) {
     }
 
     fun insertBooking(
+        userId: Long,  // New parameter
         bookingReference: String, ticketNumber: String, flightNumber: String, passengerName: String,
         time: String, departure: String, arrival: String, departureDate: String, arrivalDate: String?,
-        flightClass: String, passengerCount: Int, totalPrice: Double // Added parameters
+        flightClass: String, passengerCount: Int, totalPrice: Double
     ): Long {
         return try {
             val values = ContentValues().apply {
@@ -67,6 +68,8 @@ class DatabaseManager(context: Context) {
                 put(DatabaseHelper.COLUMN_FLIGHT_CLASS, flightClass)
                 put(DatabaseHelper.COLUMN_PASSENGER_COUNT, passengerCount)
                 put(DatabaseHelper.COLUMN_TOTAL_PRICE, totalPrice)
+                put(DatabaseHelper.COLUMN_CHECKIN_STATUS, "Processing")
+                put(DatabaseHelper.COLUMN_USER_ID, userId)  // Insert userId
             }
             val result = db.insert(DatabaseHelper.TABLE_BOOKINGS, null, values)
             Log.d("DatabaseManager", "insertBooking: result=$result")
@@ -75,6 +78,20 @@ class DatabaseManager(context: Context) {
             Log.e("DatabaseManager", "Error inserting booking", e)
             -1
         }
+    }
+
+    fun getUserBookings(userId: Long): Cursor? {
+        val columns = arrayOf(
+            DatabaseHelper.COLUMN_BOOKING_REFERENCE, DatabaseHelper.COLUMN_TICKET_NUMBER,
+            DatabaseHelper.COLUMN_FLIGHT_NUMBER, DatabaseHelper.COLUMN_PASSENGER_NAME,
+            DatabaseHelper.COLUMN_TIME, DatabaseHelper.COLUMN_DEPARTURE, DatabaseHelper.COLUMN_ARRIVAL,
+            DatabaseHelper.COLUMN_DEPARTURE_DATE, DatabaseHelper.COLUMN_ARRIVAL_DATE,
+            DatabaseHelper.COLUMN_FLIGHT_CLASS, DatabaseHelper.COLUMN_PASSENGER_COUNT,
+            DatabaseHelper.COLUMN_TOTAL_PRICE, DatabaseHelper.COLUMN_CHECKIN_STATUS
+        )
+        val selection = "${DatabaseHelper.COLUMN_USER_ID} = ?"
+        val selectionArgs = arrayOf(userId.toString())
+        return db.query(DatabaseHelper.TABLE_BOOKINGS, columns, selection, selectionArgs, null, null, null)
     }
 
     fun getUserByEmail(email: String): Cursor? {
@@ -130,14 +147,8 @@ class DatabaseManager(context: Context) {
         return rowsUpdated > 0
     }
 
-    fun deleteUser(id: Long): Int {
-        val selection = "${DatabaseHelper.COLUMN_ID} = ?"
-        val selectionArgs = arrayOf(id.toString())
-        return db.delete(DatabaseHelper.TABLE_USERS, selection, selectionArgs)
-    }
-
     fun getLastBookingId(): Long {
-        val query = "SELECT MAX(id) FROM ${DatabaseHelper.TABLE_BOOKINGS}"
+        val query = "SELECT MAX(CAST(SUBSTR(${DatabaseHelper.COLUMN_BOOKING_REFERENCE}, 9) AS INTEGER)) FROM ${DatabaseHelper.TABLE_BOOKINGS}"
         val cursor = db.rawQuery(query, null)
         val lastId = if (cursor.moveToFirst()) cursor.getLong(0) else 0
         cursor.close()
@@ -145,11 +156,13 @@ class DatabaseManager(context: Context) {
     }
 
     fun getLastTicketId(): Long {
-        val query = "SELECT MAX(id) FROM ${DatabaseHelper.TABLE_BOOKINGS}"
+        val query = "SELECT MAX(CAST(SUBSTR(${DatabaseHelper.COLUMN_TICKET_NUMBER}, 12) AS INTEGER)) FROM ${DatabaseHelper.TABLE_BOOKINGS}"
         val cursor = db.rawQuery(query, null)
         val lastId = if (cursor.moveToFirst()) cursor.getLong(0) else 0
         cursor.close()
         return lastId
     }
 
+
 }
+

@@ -133,6 +133,12 @@ class LoginActivity : ComponentActivity() {
             val storedPassword = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PASSWORD))
             if (password == storedPassword) {
                 val userId = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID))
+                val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+                with (sharedPreferences.edit()) {
+                    putLong("user_id", userId)
+                    putString("full_name", cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FIRST_NAME)) + " " + cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_LAST_NAME)))
+                    apply()
+                }
                 saveLoginState(userId, rememberMe)
                 navigateToMainActivity()
             } else {

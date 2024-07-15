@@ -21,8 +21,8 @@ class FlightDetailsDialog(
     private val arrivalDate: String?,
     private val tripType: String?,
     private val flightClass: String?,
-    private val pricePerPassenger: Double, // Added pricePerPassenger parameter
-    private val passengerCount: Int // Added passengerCount parameter
+    private val pricePerPassenger: Double,
+    private val passengerCount: Int
 ) : Dialog(context) {
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -55,13 +55,8 @@ class FlightDetailsDialog(
         textDeparture.text = "Departure: ${route.split(" - ")[0]}"
         textArrival.text = "Arrival: ${route.split(" - ")[1]}"
         textDepartureDate.text = "Departure Date: ${departureDate ?: "N/A"}"
-        if (tripType == "Round Trip") {
-            textArrivalDate.text = "Arrival Date: ${arrivalDate ?: "N/A"}"
-            textArrivalDate.visibility = View.VISIBLE
-        } else {
-            textArrivalDate.visibility = View.GONE
-        }
-        textFlightClass.text = "Class: ${flightClass ?: "N/A"}"
+        textArrivalDate.text = "Arrival Date: ${arrivalDate ?: "N/A"}"
+        textFlightClass.text = "Class: $flightClass"
 
         buttonBook.setOnClickListener {
             val userId = sharedPreferences.getLong("userId", -1)
@@ -80,16 +75,17 @@ class FlightDetailsDialog(
                 val time = spinnerTime.selectedItem.toString()
                 val departure = route.split(" - ")[0]
                 val arrival = route.split(" - ")[1]
-                val totalPrice = passengerCount * pricePerPassenger // Calculate total price
+                val totalPrice = pricePerPassenger * passengerCount // Calculate total price
 
                 // Generate booking reference and ticket number
                 val bookingReference = generateBookingReference()
                 val ticketNumber = generateTicketNumber(flightClass)
 
                 val result = dbManager.insertBooking(
+                    userId, // New parameter
                     bookingReference, ticketNumber, "AIR34-78", passengerName, time,
-                    departure, arrival, departureDate ?: "", arrivalDate, flightClass ?: "",
-                    passengerCount, totalPrice // Insert passenger count and total price
+                    departure, arrival, departureDate ?: "", arrivalDate ?: "", flightClass ?: "",
+                    passengerCount, totalPrice
                 )
 
                 if (result != -1L) {
