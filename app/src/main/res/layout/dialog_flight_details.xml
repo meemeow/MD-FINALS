@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:padding="26dp"
     android:layout_width="320dp"
-    android:layout_height="360dp">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/textDeparture"

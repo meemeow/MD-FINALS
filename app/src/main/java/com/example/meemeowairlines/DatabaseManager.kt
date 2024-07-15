@@ -156,13 +156,12 @@ class DatabaseManager(context: Context) {
     }
 
     fun getLastTicketId(): Long {
-        val query = "SELECT MAX(CAST(SUBSTR(${DatabaseHelper.COLUMN_TICKET_NUMBER}, 12) AS INTEGER)) FROM ${DatabaseHelper.TABLE_BOOKINGS}"
+        val query = "SELECT MAX(CAST(SUBSTR(${DatabaseHelper.COLUMN_TICKET_NUMBER}, INSTR(${DatabaseHelper.COLUMN_TICKET_NUMBER}, '-') + 4) AS INTEGER)) FROM ${DatabaseHelper.TABLE_BOOKINGS}"
         val cursor = db.rawQuery(query, null)
         val lastId = if (cursor.moveToFirst()) cursor.getLong(0) else 0
         cursor.close()
         return lastId
     }
-
 
 }
 

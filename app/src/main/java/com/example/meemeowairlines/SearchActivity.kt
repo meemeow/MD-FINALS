@@ -1,9 +1,31 @@
 package com.example.meemeowairlines
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.meemeowairlines.ui.theme.YourAppTheme
 
 class SearchActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,6 +39,15 @@ class SearchActivity : ComponentActivity() {
         val flightClass = intent.getStringExtra("flightClass")
         val tripType = intent.getStringExtra("tripType")
         val passengerCount = intent.getIntExtra("passengerCount", 1)
+
+        val composeView = findViewById<ComposeView>(R.id.composeViewTopBar)
+        composeView.setContent {
+            YourAppTheme {
+                ProfileTopBar()
+            }
+        }
+
+
 
         val routes = if (tripType == "Round Trip") {
             listOf(
@@ -235,4 +266,50 @@ class SearchActivity : ComponentActivity() {
         recyclerView.layoutManager = GridLayoutManager(this, 1)
         recyclerView.adapter = RouteAdapter(this, filteredRoutes, departureDate, if (tripType == "Round Trip") arrivalDate else null, tripType, flightClass, passengerCount)
     }
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun ProfileTopBar() {
+        val context = LocalContext.current
+
+        TopAppBar(
+            title = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 56.dp),
+                    contentAlignment = (Alignment.Center)
+                ) {
+                    Text(
+                        text = "Search Booking",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            },
+            navigationIcon = {
+                Box(
+                    modifier = Modifier.padding(start = 7.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    IconButton(onClick = {
+                        val intent = Intent(context, MainActivity::class.java)
+                        context.startActivity(intent)
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.back_7),
+                            contentDescription = "Back",
+                            tint = Color.White,
+                            modifier = Modifier.size(34.dp)
+                        )
+                    }
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color(0xFFF99063)
+            )
+        )
+    }
+
 }

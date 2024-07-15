@@ -66,6 +66,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.navigation.NavController
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("InvalidColorHexValue")
@@ -178,7 +179,7 @@ fun MainScreen(navController: NavHostController) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") { HomeScreen(navController = navController) }
-            composable("manage_booking") { ManageScreen() }
+            composable("manage_booking") { ManageScreen(navController = navController) }
             composable("book_flight") { BookScreen() }
             composable("check_in") { CheckInScreen() }
             composable("more") { MoreScreen() }
@@ -324,7 +325,7 @@ fun HomeScreen(navController: NavHostController) {
 }
 
 @Composable
-fun ManageScreen() {
+fun ManageScreen(navController: NavController) { // Add NavController as a parameter
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
     val userId = sharedPreferences.getLong("user_id", -1)
@@ -341,9 +342,51 @@ fun ManageScreen() {
         loadUserBookings(dbManager, userId) { bookings.value = it }
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        items(bookings.value) { booking ->
-            BookingItem(booking)
+    if (bookings.value.isEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "No Bookings Yet",
+                color = Color(0xFFF99063),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    navController.navigate("book_flight") {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFF99063)
+                ),
+                border = BorderStroke(2.dp, Color(0xFFF87943)),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.padding(horizontal = 26.dp, vertical = 10.dp),
+                contentPadding = PaddingValues(horizontal = 34.dp, vertical = 12.dp)
+            ) {
+                Text(
+                    text = "Book Now",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        }
+    } else {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            items(bookings.value) { booking ->
+                BookingItem(booking)
+            }
         }
     }
 }
@@ -395,22 +438,84 @@ data class Booking(
 
 @Composable
 fun BookingItem(booking: Booking) {
-    Column(modifier = Modifier.fillMaxWidth().padding(8.dp).border(BorderStroke(1.dp, Color.Gray), RoundedCornerShape(8.dp)).padding(8.dp)) {
-        Text(text = "Booking Reference: ${booking.bookingReference}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF99063))
-        Text(text = "Ticket Number: ${booking.ticketNumber}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Flight Number: ${booking.flightNumber}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Passenger Name: ${booking.passengerName}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Time: ${booking.time}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Departure: ${booking.departure}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Arrival: ${booking.arrival}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Departure Date: ${booking.departureDate}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Arrival Date: ${booking.arrivalDate ?: "N/A"}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Class: ${booking.flightClass}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Passenger Count: ${booking.passengerCount}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Total Price: PHP ${booking.totalPrice}", fontSize = 16.sp, color = Color(0xFFF99063))
-        Text(text = "Check-in Status: ${booking.checkinStatus}", fontSize = 16.sp, color = Color(0xFFF99063))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .border(BorderStroke(1.dp, Color.Black), RoundedCornerShape(8.dp))
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Booking Reference: ${booking.bookingReference}",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFF99063),
+        )
+        Text(
+            text = "Ticket Number: ${booking.ticketNumber}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Flight Number: ${booking.flightNumber}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Passenger Name: ${booking.passengerName}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Time: ${booking.time}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Departure: ${booking.departure}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Arrival: ${booking.arrival}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Departure Date: ${booking.departureDate}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Arrival Date: ${booking.arrivalDate ?: "N/A"}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Class: ${booking.flightClass}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Passenger Count: ${booking.passengerCount}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Total Price: PHP ${booking.totalPrice}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
+        Text(
+            text = "Check-in Status: ${booking.checkinStatus}",
+            fontSize = 12.sp,
+            color = Color(0xFF000000),
+        )
     }
 }
+
+
 
 @Composable
 fun BookScreen() {
@@ -527,9 +632,9 @@ fun RoundTripForm(airports: List<String>) {
                 context.startActivity(intent)
             }
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().height(42.dp)
     ) {
-        Text("Search")
+        Text("Search", color = Color(0xFFFFFFFF))
     }
 }
 
@@ -592,9 +697,9 @@ fun OneWayForm(airports: List<String>) {
                 context.startActivity(intent)
             }
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().height(42.dp)
     ) {
-        Text("Search")
+        Text("Search", color = Color(0xFFFFFFFF))
     }
 }
 
@@ -643,7 +748,7 @@ fun FlightForm(
             selectedOption = flightClass,
             onOptionSelected = onFlightClassChange
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -678,13 +783,14 @@ fun DatePickerDialog(
         }
     }
 
-    Text(text = "Departure Date", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+    Text(text = "Departure Date", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF99063))
     Text(
         text = selectedDate.ifEmpty { "Select Date" },
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+            .background(color = Color.White)
+            .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
             .padding(8.dp)
             .clickable {
                 datePickerDialog.show()
@@ -751,13 +857,14 @@ fun DateRangePickerDialog(
     }
 
     Column {
-        Text(text = "Departure Date", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+        Text(text = "Departure Date", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF99063))
         Text(
             text = startDate.ifEmpty { "Select Date" },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                .background(color = Color.White)
+                .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
                 .padding(8.dp)
                 .clickable {
                     startDatePickerDialog.show()
@@ -765,13 +872,14 @@ fun DateRangePickerDialog(
             color = if (startDate.isEmpty()) Color.Gray else Color.Black
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Arrival Date", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+        Text(text = "Arrival Date", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF99063))
         Text(
             text = endDate.ifEmpty { "Select Date" },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                .background(color = Color.White)
+                .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
                 .padding(8.dp)
                 .clickable {
                     endDatePickerDialog.show()
@@ -786,7 +894,7 @@ fun DropdownMenu(label: String, options: List<String>, selectedOption: String, o
     var expanded by remember { mutableStateOf(false) }
 
     Column {
-        Text(text = label, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+        Text(text = label, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF99063))
         Box {
             Text(
                 text = selectedOption.ifEmpty { "Select $label" },
@@ -794,7 +902,8 @@ fun DropdownMenu(label: String, options: List<String>, selectedOption: String, o
                     .fillMaxWidth()
                     .padding(8.dp)
                     .clickable { expanded = true }
-                    .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                    .background(color = Color.White)
+                    .border(1.dp, Color.Black, RoundedCornerShape(4.dp))
                     .padding(8.dp),
                 color = if (selectedOption.isEmpty()) Color.Gray else Color.Black
             )
@@ -837,10 +946,10 @@ fun PassengerCounter(ageGroups: MutableState<Map<String, Int>>) {
     val context = LocalContext.current
 
     Column {
-        Text(text = "Passengers", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFFF99063))
+        Text(text = "Passengers", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFFF99063))
         ageGroups.value.keys.forEach { ageGroup ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(ageGroup, modifier = Modifier.weight(1f), color = Color(0xFFF99063))
+                Text(ageGroup, modifier = Modifier.weight(1f).padding(start = 12.dp), color = Color(0xFFF99063))
                 IconButton(onClick = {
                     val currentCount = ageGroups.value.values.sum()
                     if (currentCount < 9) {
