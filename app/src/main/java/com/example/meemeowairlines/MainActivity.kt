@@ -982,8 +982,226 @@ fun PassengerCounter(ageGroups: MutableState<Map<String, Int>>) {
 
 @Composable
 fun CheckInScreen() {
-    // Content for Check-In screen
+    var checkinType by remember { mutableStateOf("Booking Reference") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFFFFEEF))
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            TextButton(
+                onClick = { checkinType = "Booking Reference" },
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = if (checkinType == "Booking Reference") Color(0xFFF99063) else Color.Transparent,
+                    contentColor = if (checkinType == "Booking Reference") Color.White else Color(0xFFF99063)
+                )
+            ) {
+                Text("Booking Reference")
+            }
+            TextButton(
+                onClick = { checkinType = "Ticket Number" },
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = if (checkinType == "Ticket Number") Color(0xFFF99063) else Color.Transparent,
+                    contentColor = if (checkinType == "Ticket Number") Color.White else Color(0xFFF99063)
+                )
+            ) {
+                Text("Ticket Number")
+            }
+        }
+
+        if (checkinType == "Booking Reference") {
+            BookingReferenceForm()
+        } else {
+            TicketNumberForm()
+        }
+    }
 }
+
+@Composable
+fun BookingReferenceForm() {
+    var bookingReference by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val dbManager = DatabaseManager(context)
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            value = bookingReference,
+            onValueChange = { bookingReference = it.uppercase() },
+            label = { Text("Booking Reference") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        TextField(
+            value = lastName,
+            onValueChange = { lastName = it },
+            label = { Text("Last Name") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        Button(
+            onClick = {
+                if (lastName.isEmpty() || bookingReference.isEmpty()) {
+                    Toast.makeText(context, "Please fill in the required fields", Toast.LENGTH_SHORT).show()
+                } else {
+                    val (isValid, isCheckedIn) = dbManager.isBookingReferenceValid(bookingReference, lastName)
+                    if (isValid) {
+                        if (isCheckedIn) {
+                            Toast.makeText(context, "Checked-In already", Toast.LENGTH_SHORT).show()
+                        } else {
+                            showConfirmationDialog = true
+                        }
+                    } else {
+                        Toast.makeText(context, "Booking reference not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(65.dp)
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Check-In", color = Color(0xFFFFFFFF))
+        }
+
+        if (showConfirmationDialog) {
+            AlertDialog(
+                onDismissRequest = { showConfirmationDialog = false },
+                title = { Text("Confirmation") },
+                text = { Text("Are you sure you want to check-in?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showConfirmationDialog = false
+                            showSuccessDialog = true
+                            dbManager.updateCheckInStatus(bookingReference, "Checked-In")
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showConfirmationDialog = false }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
+
+        if (showSuccessDialog) {
+            AlertDialog(
+                onDismissRequest = { showSuccessDialog = false },
+                title = { Text("Success") },
+                text = { Text("Check in successfully, have a safe trip") },
+                confirmButton = {
+                    Button(onClick = { showSuccessDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun TicketNumberForm() {
+    var ticketNumber by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val dbManager = DatabaseManager(context)
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            value = ticketNumber,
+            onValueChange = { ticketNumber = it.uppercase() },
+            label = { Text("Ticket Number") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        TextField(
+            value = lastName,
+            onValueChange = { lastName = it },
+            label = { Text("Last Name") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        Button(
+            onClick = {
+                if (lastName.isEmpty() || ticketNumber.isEmpty()) {
+                    Toast.makeText(context, "Please fill in the required fields", Toast.LENGTH_SHORT).show()
+                } else {
+                    val (isValid, isCheckedIn) = dbManager.isTicketNumberValid(ticketNumber, lastName)
+                    if (isValid) {
+                        if (isCheckedIn) {
+                            Toast.makeText(context, "Checked-In already", Toast.LENGTH_SHORT).show()
+                        } else {
+                            showConfirmationDialog = true
+                        }
+                    } else {
+                        Toast.makeText(context, "Ticket number not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(65.dp)
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Check-In", color = Color(0xFFFFFFFF))
+        }
+
+        if (showConfirmationDialog) {
+            AlertDialog(
+                onDismissRequest = { showConfirmationDialog = false },
+                title = { Text("Confirmation") },
+                text = { Text("Are you sure you want to check-in?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showConfirmationDialog = false
+                            showSuccessDialog = true
+                            dbManager.updateCheckInStatus(ticketNumber, "Checked-In")
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showConfirmationDialog = false }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
+
+        if (showSuccessDialog) {
+            AlertDialog(
+                onDismissRequest = { showSuccessDialog = false },
+                title = { Text("Success") },
+                text = { Text("Check in successfully, have a safe trip") },
+                confirmButton = {
+                    Button(onClick = { showSuccessDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+    }
+}
+
 
 @Composable
 fun MoreScreen() {

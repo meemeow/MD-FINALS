@@ -112,7 +112,7 @@ class LoginActivity : ComponentActivity() {
         try {
             val userId = dbManager.insertUser(firstName, lastName, phoneNumber, email, password)
             if (userId > 0) {
-                Toast.makeText(this, "Account created successfully. Please log in.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Account created successfully", Toast.LENGTH_SHORT).show()
                 findViewById<Button>(R.id.loginToggleButton).performClick() // Switch to login form
             } else {
                 Toast.makeText(this, "Account creation failed", Toast.LENGTH_SHORT).show()

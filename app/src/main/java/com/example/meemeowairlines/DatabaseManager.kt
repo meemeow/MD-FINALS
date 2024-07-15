@@ -163,5 +163,44 @@ class DatabaseManager(context: Context) {
         return lastId
     }
 
+    fun isBookingReferenceValid(bookingReference: String, lastName: String): Pair<Boolean, Boolean> {
+        val columns = arrayOf(DatabaseHelper.COLUMN_BOOKING_REFERENCE, DatabaseHelper.COLUMN_CHECKIN_STATUS)
+        val selection = "${DatabaseHelper.COLUMN_BOOKING_REFERENCE} = ? AND LOWER(${DatabaseHelper.COLUMN_PASSENGER_NAME}) LIKE ?"
+        val selectionArgs = arrayOf(bookingReference, "%${lastName.lowercase()}%")
+        val cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, columns, selection, selectionArgs, null, null, null)
+        val isValid = cursor.count > 0
+        var isCheckedIn = false
+        if (cursor.moveToFirst()) {
+            val checkInStatus = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CHECKIN_STATUS))
+            isCheckedIn = checkInStatus == "Checked-In"
+        }
+        cursor.close()
+        return Pair(isValid, isCheckedIn)
+    }
+
+    fun isTicketNumberValid(ticketNumber: String, lastName: String): Pair<Boolean, Boolean> {
+        val columns = arrayOf(DatabaseHelper.COLUMN_TICKET_NUMBER, DatabaseHelper.COLUMN_CHECKIN_STATUS)
+        val selection = "${DatabaseHelper.COLUMN_TICKET_NUMBER} = ? AND LOWER(${DatabaseHelper.COLUMN_PASSENGER_NAME}) LIKE ?"
+        val selectionArgs = arrayOf(ticketNumber, "%${lastName.lowercase()}%")
+        val cursor = db.query(DatabaseHelper.TABLE_BOOKINGS, columns, selection, selectionArgs, null, null, null)
+        val isValid = cursor.count > 0
+        var isCheckedIn = false
+        if (cursor.moveToFirst()) {
+            val checkInStatus = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CHECKIN_STATUS))
+            isCheckedIn = checkInStatus == "Checked-In"
+        }
+        cursor.close()
+        return Pair(isValid, isCheckedIn)
+    }
+
+    // Update check-in status
+    fun updateCheckInStatus(identifier: String, status: String) {
+        val values = ContentValues().apply {
+            put(DatabaseHelper.COLUMN_CHECKIN_STATUS, status)
+        }
+        val selection = "${DatabaseHelper.COLUMN_BOOKING_REFERENCE} = ? OR ${DatabaseHelper.COLUMN_TICKET_NUMBER} = ?"
+        val selectionArgs = arrayOf(identifier, identifier)
+        db.update(DatabaseHelper.TABLE_BOOKINGS, values, selection, selectionArgs)
+    }
 }
 
